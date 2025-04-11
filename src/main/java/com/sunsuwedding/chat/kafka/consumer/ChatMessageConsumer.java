@@ -2,7 +2,7 @@ package com.sunsuwedding.chat.kafka.consumer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sunsuwedding.chat.domain.ChatMessageDocument;
-import com.sunsuwedding.chat.dto.ChatMessage;
+import com.sunsuwedding.chat.dto.message.ChatMessage;
 import com.sunsuwedding.chat.repository.ChatMessageMongoRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

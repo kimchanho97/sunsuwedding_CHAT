@@ -2,7 +2,7 @@ package com.sunsuwedding.chat.kafka.producer;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sunsuwedding.chat.dto.ChatMessage;
+import com.sunsuwedding.chat.dto.message.ChatMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;

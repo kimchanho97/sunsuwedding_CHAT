@@ -1,7 +1,7 @@
 package com.sunsuwedding.chat.controller;
 
 
-import com.sunsuwedding.chat.dto.ChatMessage;
+import com.sunsuwedding.chat.dto.message.ChatMessage;
 import com.sunsuwedding.chat.kafka.producer.ChatMessageProducer;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

@@ -2,8 +2,8 @@ package com.sunsuwedding.chat.controller;
 
 import com.sunsuwedding.chat.client.ChatRoomApiClient;
 import com.sunsuwedding.chat.common.response.ApiResponse;
-import com.sunsuwedding.chat.dto.ChatRoomCreateRequest;
-import com.sunsuwedding.chat.dto.ChatRoomCreateResponse;
+import com.sunsuwedding.chat.dto.room.ChatRoomCreateRequest;
+import com.sunsuwedding.chat.dto.room.ChatRoomCreateResponse;
 import com.sunsuwedding.chat.redis.RedisChatRoomService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

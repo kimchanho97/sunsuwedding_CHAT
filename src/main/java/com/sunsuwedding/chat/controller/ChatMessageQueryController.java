@@ -1,7 +1,7 @@
 package com.sunsuwedding.chat.controller;
 
 import com.sunsuwedding.chat.domain.ChatMessageDocument;
-import com.sunsuwedding.chat.dto.ChatMessageListResponse;
+import com.sunsuwedding.chat.dto.message.ChatMessageListResponse;
 import com.sunsuwedding.chat.repository.ChatMessageMongoRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
