@@ -19,17 +19,17 @@ public class ChatMessageQueryController {
 
     private final ChatMessageMongoRepository repository;
 
-    @GetMapping("/{chatRoomId}")
+    @GetMapping("/{chatRoomCode}")
     public ResponseEntity<ChatMessageListResponse> getMessages(
-            @PathVariable Long chatRoomId,
+            @PathVariable String chatRoomCode,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "30") int size
     ) {
 
-        log.info("💬 채팅 메시지 조회 요청: roomId={}, page={}, size={}", chatRoomId, page, size);
+        log.info("💬 채팅 메시지 조회 요청: roomId={}, page={}, size={}", chatRoomCode, page, size);
 
         Pageable pageable = PageRequest.of(page, size);
-        Slice<ChatMessageDocument> slice = repository.findByChatRoomIdOrderByCreatedAtDesc(chatRoomId, pageable);
+        Slice<ChatMessageDocument> slice = repository.findByChatRoomCodeOrderByCreatedAtDesc(chatRoomCode, pageable);
 
         log.info("📦 메시지 수: {}, hasNext={}", slice.getNumberOfElements(), slice.hasNext());
 

@@ -19,7 +19,7 @@ public class ChatMessageDocument {
     @Id
     private String id;
 
-    private String chatRoomId; // 채팅방 ID - UUID
+    private String chatRoomCode; // 채팅방 ID - UUID
     private Long senderId;
     private String senderName;
     private String content;

@@ -1,6 +1,6 @@
 package com.sunsuwedding.chat.dto.room;
 
 public record ChatRoomCreateResponse(
-        String chatRoomId
+        String chatRoomCode
 ) {
 }

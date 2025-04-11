@@ -9,5 +9,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ChatMessageMongoRepository extends MongoRepository<ChatMessageDocument, String> {
 
-    Slice<ChatMessageDocument> findByChatRoomIdOrderByCreatedAtDesc(Long chatRoomId, Pageable pageable);
+    Slice<ChatMessageDocument> findByChatRoomCodeOrderByCreatedAtDesc(String chatRoomCode, Pageable pageable);
 }

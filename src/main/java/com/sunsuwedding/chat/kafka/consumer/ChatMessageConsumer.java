@@ -27,7 +27,7 @@ public class ChatMessageConsumer {
             ChatMessage message = objectMapper.readValue(payload, ChatMessage.class);
 
             ChatMessageDocument document = ChatMessageDocument.builder()
-                    .chatRoomId(message.getChatRoomId())
+                    .chatRoomCode(message.getChatRoomCode())
                     .senderId(message.getSenderId())
                     .senderName(message.getSenderName())
                     .content(message.getContent())
