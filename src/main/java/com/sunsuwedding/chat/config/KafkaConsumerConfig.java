@@ -25,14 +25,13 @@ public class KafkaConsumerConfig {
         config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         config.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         config.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-        config.put(ConsumerConfig.GROUP_ID_CONFIG, "chat-consumer");
 
         config.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
         config.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         config.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 10);
         config.put(ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG, 60000);
         config.put(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, 10000);
-        
+
         return new DefaultKafkaConsumerFactory<>(config);
     }
 
