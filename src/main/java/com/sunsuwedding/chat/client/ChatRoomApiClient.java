@@ -2,6 +2,7 @@ package com.sunsuwedding.chat.client;
 
 import com.sunsuwedding.chat.dto.room.ChatRoomCreateRequest;
 import com.sunsuwedding.chat.dto.room.ChatRoomCreateResponse;
+import com.sunsuwedding.chat.dto.room.ChatRoomValidationRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -23,4 +24,10 @@ public class ChatRoomApiClient {
         String url = baseUrl + chatRoomPath;
         return restTemplate.postForObject(url, request, ChatRoomCreateResponse.class);
     }
+
+    public boolean validateChatRoom(ChatRoomValidationRequest request) {
+        String url = baseUrl + chatRoomPath + "/validate";
+        return restTemplate.postForObject(url, request, Boolean.class);
+    }
+
 }

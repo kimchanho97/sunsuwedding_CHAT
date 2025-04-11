@@ -4,6 +4,8 @@ import com.sunsuwedding.chat.client.ChatRoomApiClient;
 import com.sunsuwedding.chat.common.response.ApiResponse;
 import com.sunsuwedding.chat.dto.room.ChatRoomCreateRequest;
 import com.sunsuwedding.chat.dto.room.ChatRoomCreateResponse;
+import com.sunsuwedding.chat.dto.room.ChatRoomValidationRequest;
+import com.sunsuwedding.chat.dto.room.ChatRoomValidationResponse;
 import com.sunsuwedding.chat.redis.RedisChatRoomService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/chat-rooms")
-public class ChatRoomGatewayController {
+public class ChatRoomExternalController {
 
     private final ChatRoomApiClient chatRoomApiClient;
     private final RedisChatRoomService redisChatRoomService;
@@ -29,12 +31,17 @@ public class ChatRoomGatewayController {
         ChatRoomCreateResponse response = chatRoomApiClient.createOrFindChatRoom(request);
 
         // 2. Redis 메타 저장
-        redisChatRoomService.saveChatRoomMeta(
-                response.chatRoomId(),
-                request.userId(),
-                request.plannerId()
-        );
+        redisChatRoomService.saveChatRoomMeta(response.chatRoomId(), request.userId(), request.plannerId());
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    @PostMapping("/validate")
+    public ResponseEntity<ApiResponse<ChatRoomValidationResponse>> validate(@RequestBody @Valid ChatRoomValidationRequest request) {
+
+        boolean isValid = chatRoomApiClient.validateChatRoom(request);
+        ChatRoomValidationResponse response = new ChatRoomValidationResponse(isValid);
 
         return ResponseEntity.ok(ApiResponse.success(response));
     }
+
 }
