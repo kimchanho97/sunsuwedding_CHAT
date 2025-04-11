@@ -1,4 +1,4 @@
-package com.sunsuwedding.chat.dto;
+package com.sunsuwedding.chat.dto.message;
 
 import com.sunsuwedding.chat.domain.ChatMessageDocument;
 import lombok.AllArgsConstructor;

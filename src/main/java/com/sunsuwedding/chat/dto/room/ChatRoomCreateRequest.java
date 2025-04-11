@@ -1,4 +1,4 @@
-package com.sunsuwedding.chat.dto;
+package com.sunsuwedding.chat.dto.room;
 
 import jakarta.validation.constraints.NotNull;
 
