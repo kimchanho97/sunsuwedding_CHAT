@@ -3,6 +3,7 @@ package com.sunsuwedding.chat.controller;
 
 import com.sunsuwedding.chat.dto.ChatMessage;
 import com.sunsuwedding.chat.kafka.producer.ChatMessageProducer;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
@@ -20,7 +21,7 @@ public class ChatWebSocketController {
     private final ChatMessageProducer chatMessageProducer;
 
     @MessageMapping("/chat-rooms/{roomId}/messages")
-    public void send(@DestinationVariable Long roomId, @Payload ChatMessage message) {
+    public void send(@DestinationVariable Long roomId, @Payload @Valid ChatMessage message) {
         log.info("🟢 수신 메시지: {}", message);
 
         // Kafka로 메시지 전송
