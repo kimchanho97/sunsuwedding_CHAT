@@ -5,3 +5,18 @@ spring:
 
   kafka:
     bootstrap-servers: ${KAFKA_ADVERTISED_HOST}
+
+    producer:
+      acks: all                        # 모든 ISR에서 ack 받을 때만 성공 처리
+      retries: 5
+      properties:
+        enable.idempotence: true      # 중복 전송 방지
+
+    consumer:
+      enable-auto-commit: false
+      auto-offset-reset: earliest
+      max-poll-records: 10
+      properties:
+        max.poll.interval.ms: 60000
+        session.timeout.ms: 10000
+
