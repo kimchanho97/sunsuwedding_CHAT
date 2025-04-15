@@ -1,4 +1,4 @@
-package com.sunsuwedding.chat.controller;
+package com.sunsuwedding.chat.controller.websocket;
 
 
 import com.sunsuwedding.chat.dto.message.ChatMessage;
@@ -20,14 +20,14 @@ public class ChatWebSocketController {
     private final SimpMessagingTemplate messagingTemplate;
     private final ChatMessageProducer chatMessageProducer;
 
-    @MessageMapping("/chat-rooms/{roomId}/messages")
-    public void send(@DestinationVariable Long roomId, @Payload @Valid ChatMessage message) {
+    @MessageMapping("/chat-rooms/{roomCode}/messages")
+    public void send(@DestinationVariable String roomCode, @Payload @Valid ChatMessage message) {
         log.info("🟢 수신 메시지: {}", message);
 
         // Kafka로 메시지 전송
         chatMessageProducer.send(message);
 
         // WebSocket으로 메시지 전송
-        messagingTemplate.convertAndSend("/topic/chat/rooms/" + roomId, message);
+        messagingTemplate.convertAndSend("/topic/chat/rooms/" + roomCode, message);
     }
 }

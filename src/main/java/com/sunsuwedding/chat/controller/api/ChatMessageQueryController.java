@@ -1,4 +1,4 @@
-package com.sunsuwedding.chat.controller;
+package com.sunsuwedding.chat.controller.api;
 
 import com.sunsuwedding.chat.domain.ChatMessageDocument;
 import com.sunsuwedding.chat.dto.message.ChatMessageListResponse;
