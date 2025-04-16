@@ -12,8 +12,8 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 
 @Slf4j
 @RestControllerAdvice
-public class GlobalExceptionHandler {
-    
+public class ApiExceptionHandler {
+
     @ExceptionHandler(BaseException.class)
     public ResponseEntity<ErrorResponse> handleBusinessException(BaseException e) {
         log.warn("Business Exception 발생: {}", e.getMessage());
