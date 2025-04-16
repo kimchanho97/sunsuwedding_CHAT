@@ -36,16 +36,13 @@ public class ChatRoomExternalController {
     public ApiResponse<ChatRoomValidationResponse> validate(@RequestBody @Valid ChatRoomValidationRequest request) {
         // 1. Redis 먼저 조회
         boolean isInRedis = redisChatRoomService.isUserInChatRoom(request.getChatRoomCode(), request.getUserId());
-
         if (isInRedis) {
-            // Redis에 참여자 정보가 있으면 바로 OK
             return ApiResponse.success(new ChatRoomValidationResponse(true));
         }
 
         // 2. Redis에 없을 경우, 백엔드로 유효성 검증 요청
         boolean isValid = chatRoomApiClient.validateChatRoom(request);
-        ChatRoomValidationResponse response = new ChatRoomValidationResponse(isValid);
-        return ApiResponse.success(response);
+        return ApiResponse.success(new ChatRoomValidationResponse(isValid));
     }
 
 }
