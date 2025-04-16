@@ -4,40 +4,39 @@ public class RedisKeyUtil {
 
     private static final String PREFIX = "chat";
 
-    /**
-     * 세션 → 유저 ID 매핑
-     * ex) chat:session:3fa85f64 → 32
-     */
+    // 세션 ID → 유저 ID 매핑
+    // chat:session:{sessionId} → userId
     public static String sessionToUserKey(String sessionId) {
         return PREFIX + ":session:" + sessionId;
     }
 
-    /**
-     * 유저 ID → 서버 ID 매핑 (유니캐스트 라우팅용), 접속 중인 서버 ID
-     * ex) chat:presence:32 → chat-server-1
-     */
+    // 유저 접속 서버 ID (유니캐스트 라우팅용)
+    // chat:presence:{userId} → chat-server-1
     public static String userPresenceKey(Long userId) {
         return PREFIX + ":presence:" + userId;
     }
 
-    /**
-     * 유저가 참여 중인 채팅방 목록 (zset)
-     */
-    public static String sortedRoomKey(Long userId) {
+    // 유저별 채팅방 목록 (ZSET, score = lastMessageAt)
+    // chat:rooms:{userId}
+    public static String userChatRoomsKey(Long userId) {
         return PREFIX + ":rooms:" + userId;
     }
 
-    /**
-     * 채팅방 메타 정보 (마지막 메시지, 시간 등)
-     */
+    // 채팅방 메타정보 (lastMessage, lastMessageAt, lastMessageSeqId)
+    // chat:room:meta:{chatRoomCode}
     public static String roomMetaKey(String chatRoomCode) {
         return PREFIX + ":room:meta:" + chatRoomCode;
     }
 
-    /**
-     * 유저의 특정 채팅방에서의 상태 정보 (읽음 여부 등)
-     */
-    public static String userRoomStatusKey(String chatRoomCode, Long userId) {
-        return PREFIX + ":room:user:" + chatRoomCode + ":" + userId;
+    // 채팅방 메시지 시퀀스 ID (Redis INCR로 사용)
+    // chat:room:seq:{chatRoomCode} → Long (1부터 시작)
+    public static String roomMessageSeqKey(String chatRoomCode) {
+        return PREFIX + ":room:seq:" + chatRoomCode;
+    }
+
+    // 유저가 마지막으로 읽은 메시지 seq ID (옵션)
+    // chat:room:last-read:{chatRoomCode}:{userId}
+    public static String lastReadSeqKey(String chatRoomCode, Long userId) {
+        return PREFIX + ":room:last-read:" + chatRoomCode + ":" + userId;
     }
 }

@@ -9,20 +9,20 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
 
-@Document(collection = "chat_messages")
 @Getter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@Document(collection = "chat_messages")
 public class ChatMessageDocument {
 
     @Id
     private String id;
-
-    private String chatRoomCode; // 채팅방 ID - UUID
+    private String chatRoomCode; // 채팅방 CODE - UUID
     private Long senderId;
     private String senderName;
     private String content;
     private String messageType; // TEXT, IMAGE
     private LocalDateTime createdAt;
+    private Long messageSeqId; // 메시지 시퀀스 ID
 }
