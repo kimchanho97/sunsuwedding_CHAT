@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.Map;
 import java.util.Set;
 
 @Service
@@ -15,28 +14,22 @@ public class RedisChatRoomService {
 
     public void saveChatRoomMeta(String chatRoomCode, Long userId, Long plannerId) {
         long now = System.currentTimeMillis();
-
         // 유저별 정렬 채팅방 목록
-        redisTemplate.opsForZSet().add(RedisKeyUtil.sortedRoomKey(userId), chatRoomCode, now);
-        redisTemplate.opsForZSet().add(RedisKeyUtil.sortedRoomKey(plannerId), chatRoomCode, now);
+        redisTemplate.opsForZSet().add(RedisKeyUtil.userChatRoomsKey(userId), chatRoomCode, now);
+        redisTemplate.opsForZSet().add(RedisKeyUtil.userChatRoomsKey(plannerId), chatRoomCode, now);
 
-        // 유저별 상태 초기화
-        Map<String, String> status = Map.of(
-                "unreadCount", "0",
-                "lastReadMessageId", "0"
-        );
-
-        redisTemplate.opsForHash().putAll(RedisKeyUtil.userRoomStatusKey(chatRoomCode, userId), status);
-        redisTemplate.opsForHash().putAll(RedisKeyUtil.userRoomStatusKey(chatRoomCode, plannerId), status);
+        // 채팅방 입장 시 유저별 lastReadSeqId 초기화
+        redisTemplate.opsForValue().set(RedisKeyUtil.lastReadSeqKey(chatRoomCode, userId), "0");
+        redisTemplate.opsForValue().set(RedisKeyUtil.lastReadSeqKey(chatRoomCode, plannerId), "0");
     }
 
     public boolean isUserInChatRoom(String chatRoomCode, Long userId) {
         Set<String> userRoomCodes = redisTemplate.opsForZSet()
-                .range(RedisKeyUtil.sortedRoomKey(userId), 0, -1);
+                .range(RedisKeyUtil.userChatRoomsKey(userId), 0, -1);
 
         return userRoomCodes != null && userRoomCodes.contains(chatRoomCode);
     }
-    
+
 
 //    public void updateChatRoomMeta(String chatRoomCode, String message, Instant sentAt) {
 //        String timestamp = sentAt.toString();
