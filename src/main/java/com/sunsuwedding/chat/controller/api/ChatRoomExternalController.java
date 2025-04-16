@@ -6,7 +6,7 @@ import com.sunsuwedding.chat.dto.room.ChatRoomCreateRequest;
 import com.sunsuwedding.chat.dto.room.ChatRoomCreateResponse;
 import com.sunsuwedding.chat.dto.room.ChatRoomValidationRequest;
 import com.sunsuwedding.chat.dto.room.ChatRoomValidationResponse;
-import com.sunsuwedding.chat.redis.RedisChatRoomService;
+import com.sunsuwedding.chat.redis.RedisChatRoomStore;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,22 +20,22 @@ import org.springframework.web.bind.annotation.RestController;
 public class ChatRoomExternalController {
 
     private final ChatRoomApiClient chatRoomApiClient;
-    private final RedisChatRoomService redisChatRoomService;
+    private final RedisChatRoomStore redisChatRoomStore;
 
     @PostMapping
     public ApiResponse<ChatRoomCreateResponse> createChatRoom(@RequestBody @Valid ChatRoomCreateRequest request) {
         // 1. 백엔드 서버에 채팅방 생성 요청
         ChatRoomCreateResponse response = chatRoomApiClient.createOrFindChatRoom(request);
 
-        // 2. Redis 메타 저장
-        redisChatRoomService.saveChatRoomMeta(response.chatRoomCode(), request.userId(), request.plannerId());
+        // 2. Redis에 채팅방 생성
+        redisChatRoomStore.initializeChatRoomEntry(response.chatRoomCode(), request.userId(), request.plannerId());
         return ApiResponse.success(response);
     }
 
     @PostMapping("/validate")
     public ApiResponse<ChatRoomValidationResponse> validate(@RequestBody @Valid ChatRoomValidationRequest request) {
         // 1. Redis 먼저 조회
-        boolean isInRedis = redisChatRoomService.isUserInChatRoom(request.getChatRoomCode(), request.getUserId());
+        boolean isInRedis = redisChatRoomStore.isUserInChatRoom(request.getChatRoomCode(), request.getUserId());
         if (isInRedis) {
             return ApiResponse.success(new ChatRoomValidationResponse(true));
         }
