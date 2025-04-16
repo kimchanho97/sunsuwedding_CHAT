@@ -17,8 +17,8 @@ public class RedisChatRoomService {
         long now = System.currentTimeMillis();
 
         // 유저별 정렬 채팅방 목록
-        redisTemplate.opsForZSet().add(ChatRedisKeyUtil.sortedRoomKey(userId), chatRoomCode, now);
-        redisTemplate.opsForZSet().add(ChatRedisKeyUtil.sortedRoomKey(plannerId), chatRoomCode, now);
+        redisTemplate.opsForZSet().add(RedisKeyUtil.sortedRoomKey(userId), chatRoomCode, now);
+        redisTemplate.opsForZSet().add(RedisKeyUtil.sortedRoomKey(plannerId), chatRoomCode, now);
 
         // 유저별 상태 초기화
         Map<String, String> status = Map.of(
@@ -26,25 +26,17 @@ public class RedisChatRoomService {
                 "lastReadMessageId", "0"
         );
 
-        redisTemplate.opsForHash().putAll(ChatRedisKeyUtil.userRoomStatusKey(chatRoomCode, userId), status);
-        redisTemplate.opsForHash().putAll(ChatRedisKeyUtil.userRoomStatusKey(chatRoomCode, plannerId), status);
+        redisTemplate.opsForHash().putAll(RedisKeyUtil.userRoomStatusKey(chatRoomCode, userId), status);
+        redisTemplate.opsForHash().putAll(RedisKeyUtil.userRoomStatusKey(chatRoomCode, plannerId), status);
     }
 
     public boolean isUserInChatRoom(String chatRoomCode, Long userId) {
         Set<String> userRoomCodes = redisTemplate.opsForZSet()
-                .range(ChatRedisKeyUtil.sortedRoomKey(userId), 0, -1);
+                .range(RedisKeyUtil.sortedRoomKey(userId), 0, -1);
 
         return userRoomCodes != null && userRoomCodes.contains(chatRoomCode);
     }
-
-
-    public void markUserOnline(Long userId) {
-        redisTemplate.opsForValue().set(
-                ChatRedisKeyUtil.userOnlineKey(userId),
-                "1",
-                java.time.Duration.ofSeconds(10)
-        );
-    }
+    
 
 //    public void updateChatRoomMeta(String chatRoomCode, String message, Instant sentAt) {
 //        String timestamp = sentAt.toString();
