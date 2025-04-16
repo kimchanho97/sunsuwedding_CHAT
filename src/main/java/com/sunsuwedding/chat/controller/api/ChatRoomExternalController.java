@@ -9,7 +9,6 @@ import com.sunsuwedding.chat.dto.room.ChatRoomValidationResponse;
 import com.sunsuwedding.chat.redis.RedisChatRoomService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,35 +23,29 @@ public class ChatRoomExternalController {
     private final RedisChatRoomService redisChatRoomService;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<ChatRoomCreateResponse>> createChatRoom(
-            @RequestBody @Valid ChatRoomCreateRequest request
-    ) {
+    public ApiResponse<ChatRoomCreateResponse> createChatRoom(@RequestBody @Valid ChatRoomCreateRequest request) {
         // 1. 백엔드 서버에 채팅방 생성 요청
         ChatRoomCreateResponse response = chatRoomApiClient.createOrFindChatRoom(request);
 
         // 2. Redis 메타 저장
         redisChatRoomService.saveChatRoomMeta(response.chatRoomCode(), request.userId(), request.plannerId());
-        return ResponseEntity.ok(ApiResponse.success(response));
+        return ApiResponse.success(response);
     }
 
     @PostMapping("/validate")
-    public ResponseEntity<ApiResponse<ChatRoomValidationResponse>> validate(
-            @RequestBody @Valid ChatRoomValidationRequest request) {
-
+    public ApiResponse<ChatRoomValidationResponse> validate(@RequestBody @Valid ChatRoomValidationRequest request) {
         // 1. Redis 먼저 조회
         boolean isInRedis = redisChatRoomService.isUserInChatRoom(request.getChatRoomCode(), request.getUserId());
 
         if (isInRedis) {
             // Redis에 참여자 정보가 있으면 바로 OK
-            return ResponseEntity.ok(ApiResponse.success(new ChatRoomValidationResponse(true)));
+            return ApiResponse.success(new ChatRoomValidationResponse(true));
         }
 
         // 2. Redis에 없을 경우, 백엔드로 유효성 검증 요청
         boolean isValid = chatRoomApiClient.validateChatRoom(request);
         ChatRoomValidationResponse response = new ChatRoomValidationResponse(isValid);
-
-        return ResponseEntity.ok(ApiResponse.success(response));
+        return ApiResponse.success(response);
     }
-
 
 }
