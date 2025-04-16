@@ -14,17 +14,14 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 @RestControllerAdvice
 public class ApiExceptionHandler {
 
-    @ExceptionHandler(BaseException.class)
-    public ResponseEntity<ErrorResponse> handleBusinessException(BaseException e) {
-        log.warn("Business Exception 발생: {}", e.getMessage());
+    @ExceptionHandler(CustomException.class)
+    public ResponseEntity<ErrorResponse> handleBusinessException(CustomException e) {
+        log.warn("CustomException 발생: {}", e.getMessage());
         return ResponseEntity
                 .status(e.getHttpStatus())
                 .body(new ErrorResponse(e));
     }
 
-    /**
-     * 데이터베이스 예외 처리
-     */
     @ExceptionHandler(DataAccessException.class)
     public ResponseEntity<ErrorResponse> handleDatabaseException(DataAccessException e) {
         log.error("Database Error 발생", e); // ERROR 레벨
@@ -32,10 +29,7 @@ public class ApiExceptionHandler {
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(new ErrorResponse(CommonErrorCode.SYSTEM_ERROR));
     }
-
-    /**
-     * 정의하지 않은 모든 예외를 서버 오류로 처리
-     */
+    
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGlobalException(Exception e) {
         log.error("System Exception 발생", e); // ERROR 레벨
