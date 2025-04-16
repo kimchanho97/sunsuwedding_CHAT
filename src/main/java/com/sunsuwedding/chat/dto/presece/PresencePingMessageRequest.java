@@ -1,5 +1,6 @@
 package com.sunsuwedding.chat.dto.presece;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -7,7 +8,8 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class PresenceStatusMessage {
+public class PresencePingMessageRequest {
+
+    @NotNull(message = "userId는 필수입니다.")
     private Long userId;
-    private String status; // "online"
 }

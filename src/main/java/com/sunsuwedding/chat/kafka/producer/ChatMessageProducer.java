@@ -2,7 +2,7 @@ package com.sunsuwedding.chat.kafka.producer;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sunsuwedding.chat.dto.message.ChatMessage;
+import com.sunsuwedding.chat.dto.message.ChatMessageRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -16,7 +16,7 @@ public class ChatMessageProducer {
     private final KafkaTemplate<String, String> kafkaTemplate;
     private final ObjectMapper objectMapper;
 
-    public void send(ChatMessage message) {
+    public void send(ChatMessageRequest message) {
         try {
             String payload = objectMapper.writeValueAsString(message);
 

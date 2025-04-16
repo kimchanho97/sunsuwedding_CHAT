@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ChatMessage {
+public class ChatMessageRequest {
 
     @NotNull(message = "채팅방 ID는 필수입니다.")
     private String chatRoomCode;

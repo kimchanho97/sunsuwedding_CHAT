@@ -2,7 +2,7 @@ package com.sunsuwedding.chat.kafka.consumer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sunsuwedding.chat.client.PresencePushClient;
-import com.sunsuwedding.chat.dto.presece.PresenceStatusMessage;
+import com.sunsuwedding.chat.dto.presece.PresenceMessageResponse;
 import com.sunsuwedding.chat.event.message.PresenceStatusEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,7 +32,7 @@ public class PresenceStatusConsumer {
             Long userId = status.getUserId();
             String targetServer = status.getServerId();
 
-            PresenceStatusMessage statusMessage = new PresenceStatusMessage(userId, status.getStatus());
+            PresenceMessageResponse statusMessage = new PresenceMessageResponse(userId, status.getStatus());
             if (serverId.equals(targetServer)) {
                 log.info("✅ WebSocket 전송: userId={}", userId);
                 messagingTemplate.convertAndSend("/topic/presence/" + userId, statusMessage);

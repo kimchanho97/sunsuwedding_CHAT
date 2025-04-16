@@ -2,7 +2,7 @@ package com.sunsuwedding.chat.kafka.consumer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sunsuwedding.chat.domain.ChatMessageDocument;
-import com.sunsuwedding.chat.dto.message.ChatMessage;
+import com.sunsuwedding.chat.dto.message.ChatMessageRequest;
 import com.sunsuwedding.chat.repository.ChatMessageMongoRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +24,7 @@ public class ChatMessageConsumer {
     public void consume(String payload, Acknowledgment ack) {
         try {
             log.info("[Kafka Consumer] 메시지 수신: {}", payload);
-            ChatMessage message = objectMapper.readValue(payload, ChatMessage.class);
+            ChatMessageRequest message = objectMapper.readValue(payload, ChatMessageRequest.class);
 
             ChatMessageDocument document = ChatMessageDocument.builder()
                     .chatRoomCode(message.getChatRoomCode())

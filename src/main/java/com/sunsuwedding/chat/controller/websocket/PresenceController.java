@@ -1,7 +1,7 @@
 package com.sunsuwedding.chat.controller.websocket;
 
-import com.sunsuwedding.chat.dto.presece.PresenceMessage;
-import com.sunsuwedding.chat.dto.presece.PresencePingMessage;
+import com.sunsuwedding.chat.dto.presece.PresenceMessageRequest;
+import com.sunsuwedding.chat.dto.presece.PresencePingMessageRequest;
 import com.sunsuwedding.chat.event.message.PresenceStatusEvent;
 import com.sunsuwedding.chat.kafka.producer.PresenceStatusProducer;
 import com.sunsuwedding.chat.redis.RedisKeyUtil;
@@ -30,7 +30,7 @@ public class PresenceController {
     private String serverId;
 
     @MessageMapping("/presence")
-    public void handlePresence(@Payload PresenceMessage message, @Header("simpSessionId") String sessionId) {
+    public void handlePresence(@Payload PresenceMessageRequest message, @Header("simpSessionId") String sessionId) {
         // 1. 세션 정보 저장 (sessionId → userId)
         String sessionKey = RedisKeyUtil.sessionToUserKey(sessionId);
         log.info("[Session] sessionId={} → userId={}", sessionKey, message.getUserId());
@@ -58,7 +58,7 @@ public class PresenceController {
     }
 
     @MessageMapping("/presence/ping")
-    public void handlePing(@Payload PresencePingMessage message, @Header("simpSessionId") String sessionId) {
+    public void handlePing(@Payload PresencePingMessageRequest message, @Header("simpSessionId") String sessionId) {
         // 1. 유저 접속 상태 TTL 연장
         String presenceKey = RedisKeyUtil.userPresenceKey(message.getUserId());
         redisTemplate.expire(presenceKey, TTL);

@@ -1,7 +1,7 @@
 package com.sunsuwedding.chat.controller.websocket;
 
 
-import com.sunsuwedding.chat.dto.message.ChatMessage;
+import com.sunsuwedding.chat.dto.message.ChatMessageRequest;
 import com.sunsuwedding.chat.kafka.producer.ChatMessageProducer;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +21,7 @@ public class ChatWebSocketController {
     private final ChatMessageProducer chatMessageProducer;
 
     @MessageMapping("/chat-rooms/{roomCode}/messages")
-    public void send(@DestinationVariable String roomCode, @Payload @Valid ChatMessage message) {
+    public void send(@DestinationVariable String roomCode, @Payload @Valid ChatMessageRequest message) {
         log.info("🟢 수신 메시지: {}", message);
 
         // Kafka로 메시지 전송
