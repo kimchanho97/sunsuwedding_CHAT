@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class PresenceMessageResponse {
+public class PresenceStatusMessageResponse {
     private Long userId;
     private String status; // "online"
 }

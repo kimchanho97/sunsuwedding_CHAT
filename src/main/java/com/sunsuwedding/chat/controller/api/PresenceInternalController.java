@@ -1,6 +1,6 @@
 package com.sunsuwedding.chat.controller.api;
 
-import com.sunsuwedding.chat.dto.presece.PresenceMessageResponse;
+import com.sunsuwedding.chat.dto.presece.PresenceStatusMessageResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -19,10 +19,7 @@ public class PresenceInternalController {
     private final SimpMessagingTemplate messagingTemplate;
 
     @PostMapping("/push")
-    public ResponseEntity<Void> pushPresence(@RequestBody PresenceMessageResponse status) {
-        log.info("📨 내부 Presence 푸시 수신: userId={}, status={}", status.getUserId(), status.getStatus());
-
-        // 실제 WebSocket 전송
+    public ResponseEntity<Void> pushPresence(@RequestBody PresenceStatusMessageResponse status) {
         messagingTemplate.convertAndSend("/topic/presence/" + status.getUserId(), status);
         return ResponseEntity.ok().build();
     }
