@@ -8,5 +8,5 @@ import lombok.Getter;
 public class PresenceStatusEvent {
     private Long userId;
     private String status; // "online"
-    private String serverId;
+    private String targetServerId;
 }

@@ -21,10 +21,10 @@ public class PresenceStatusProducer {
     public void send(PresenceStatusEvent event) {
         try {
             String payload = objectMapper.writeValueAsString(event);
+            // 추가적으로 전송 실패시 콜백 처리도 가능
             kafkaTemplate.send(TOPIC, String.valueOf(event.getUserId()), payload);
-            log.info("Kafka Producer 전송 완료: {}", payload);
         } catch (JsonProcessingException e) {
-            log.error("Kafka Presence 직렬화 실패", e);
+            log.error("❌ Kafka 직렬화 실패 - 이벤트 구조 확인 필요: {}", event, e);
         }
     }
 }
