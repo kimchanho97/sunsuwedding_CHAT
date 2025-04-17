@@ -4,4 +4,6 @@ public interface PresenceService {
     void handleConnect(Long userId, Long chatPartnerId, String sessionId);
 
     void handlePing(Long userId, String sessionId);
+
+    void handleDisconnect(String sessionId);
 }
