@@ -1,5 +1,6 @@
 package com.sunsuwedding.chat.kafka.consumer;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sunsuwedding.chat.client.PresencePushClient;
 import com.sunsuwedding.chat.dto.presece.PresenceStatusMessageResponse;
@@ -21,26 +22,38 @@ public class PresenceStatusConsumer {
     private final PresencePushClient presencePushClient;
 
     @Value("${chat.server-id}")
-    private String serverId; // 현재 서버의 식별자
+    private String currentServerId;
 
     @KafkaListener(topics = "presence-status", groupId = "presence-consumer-group")
-    public void listen(String message) {
+    public void consume(String rawMessage) {
         try {
-            PresenceStatusEvent statusEvent = objectMapper.readValue(message, PresenceStatusEvent.class);
-            Long userId = statusEvent.getUserId();
-            String targetServer = statusEvent.getServerId();
-
-            PresenceStatusMessageResponse messageResponse = new PresenceStatusMessageResponse(userId, statusEvent.getStatus());
-            if (serverId.equals(targetServer)) {
-                log.info("✅ WebSocket 전송: userId={}", userId);
-                messagingTemplate.convertAndSend("/topic/presence/" + userId, messageResponse);
-            } else {
-                log.info("📡 다른 서버에 유저 존재 → HTTP 전송: {}", targetServer);
-                presencePushClient.sendPresence(targetServer, messageResponse);
-            }
-
+            PresenceStatusEvent event = objectMapper.readValue(rawMessage, PresenceStatusEvent.class);
+            handleEvent(event);
+        } catch (JsonProcessingException e) {
+            log.error("❌ PresenceStatusEvent 직렬화 실패: {}", rawMessage, e);
         } catch (Exception e) {
-            log.error("❌ PresenceStatus Consumer 처리 실패", e);
+            log.error("❌ PresenceStatusEvent 처리 실패", e);
         }
+    }
+
+    private void handleEvent(PresenceStatusEvent event) {
+        Long userId = event.getUserId();
+        String targetServerId = event.getTargetServerId();
+
+        PresenceStatusMessageResponse response = new PresenceStatusMessageResponse(userId, event.getStatus());
+
+        if (currentServerId.equals(targetServerId)) {
+            pushToWebSocket(userId, response);
+        } else {
+            pushToRemoteServer(targetServerId, response);
+        }
+    }
+
+    private void pushToWebSocket(Long userId, PresenceStatusMessageResponse response) {
+        messagingTemplate.convertAndSend("/topic/presence/" + userId, response);
+    }
+
+    private void pushToRemoteServer(String serverId, PresenceStatusMessageResponse response) {
+        presencePushClient.sendPresence(serverId, response);
     }
 }
