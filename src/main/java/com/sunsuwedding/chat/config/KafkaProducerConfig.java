@@ -30,12 +30,16 @@ public class KafkaProducerConfig {
         config.put(ProducerConfig.ACKS_CONFIG, "all");
         config.put(ProducerConfig.RETRIES_CONFIG, 5);
         config.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, true);
-        
+        config.put(ProducerConfig.TRANSACTIONAL_ID_CONFIG, "chat-tx-id");
+
         return new DefaultKafkaProducerFactory<>(config);
     }
 
     @Bean
     public KafkaTemplate<String, String> kafkaTemplate() {
-        return new KafkaTemplate<>(producerFactory());
+        KafkaTemplate<String, String> kafkaTemplate = new KafkaTemplate<>(producerFactory());
+        kafkaTemplate.setTransactionIdPrefix("chat-tx-"); // (선택적으로 prefix 설정 가능)
+        return kafkaTemplate;
     }
+
 }
