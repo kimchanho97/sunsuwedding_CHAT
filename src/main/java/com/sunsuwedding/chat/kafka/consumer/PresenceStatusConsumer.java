@@ -3,7 +3,8 @@ package com.sunsuwedding.chat.kafka.consumer;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sunsuwedding.chat.client.PresencePushClient;
-import com.sunsuwedding.chat.dto.presece.PresenceStatusMessageResponse;
+import com.sunsuwedding.chat.dto.presence.PresenceStatusDto;
+import com.sunsuwedding.chat.dto.presence.PresenceStatusMessageResponse;
 import com.sunsuwedding.chat.event.message.PresenceStatusEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,23 +38,31 @@ public class PresenceStatusConsumer {
     }
 
     private void handleEvent(PresenceStatusEvent event) {
-        Long userId = event.getUserId();
-        String targetServerId = event.getTargetServerId();
+        PresenceStatusDto status = new PresenceStatusDto(
+                event.getUserId(),
+                event.getChatRoomCode(),
+                event.getStatus()
+        );
 
-        PresenceStatusMessageResponse response = new PresenceStatusMessageResponse(userId, event.getStatus());
-
-        if (currentServerId.equals(targetServerId)) {
-            pushToWebSocket(userId, response);
+        if (currentServerId.equals(event.getTargetServerId())) {
+            pushToWebSocket(status);
         } else {
-            pushToRemoteServer(targetServerId, response);
+            pushToRemoteServer(event.getTargetServerId(), status);
         }
     }
 
-    private void pushToWebSocket(Long userId, PresenceStatusMessageResponse response) {
-        messagingTemplate.convertAndSend("/topic/presence/" + userId, response);
+    private void pushToWebSocket(PresenceStatusDto status) {
+        PresenceStatusMessageResponse response = new PresenceStatusMessageResponse(
+                status.getUserId(),
+                status.getStatus()
+        );
+        messagingTemplate.convertAndSend(
+                "/topic/presence/" + status.getChatRoomCode() + "/" + status.getUserId(),
+                response
+        );
     }
 
-    private void pushToRemoteServer(String serverId, PresenceStatusMessageResponse response) {
-        presencePushClient.sendPresence(serverId, response);
+    private void pushToRemoteServer(String serverUrl, PresenceStatusDto status) {
+        presencePushClient.sendPresence(serverUrl, status);
     }
 }

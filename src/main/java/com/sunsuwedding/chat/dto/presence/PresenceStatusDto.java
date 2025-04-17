@@ -1,4 +1,4 @@
-package com.sunsuwedding.chat.dto.presece;
+package com.sunsuwedding.chat.dto.presence;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -7,7 +7,8 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class PresenceStatusMessageResponse {
+public class PresenceStatusDto {
     private Long userId;
-    private String status; // "online"
+    private String chatRoomCode;
+    private String status;
 }

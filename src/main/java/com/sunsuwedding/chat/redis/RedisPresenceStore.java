@@ -13,53 +13,52 @@ public class RedisPresenceStore {
     private final RedisTemplate<String, String> redisTemplate;
     private static final Duration TTL = Duration.ofSeconds(180);
 
-    public void saveSession(String sessionId, Long userId) {
-        redisTemplate.opsForValue().set(RedisKeyUtil.sessionToUserKey(sessionId), String.valueOf(userId), TTL);
+    public void saveSession(String sessionId, Long userId, String chatRoomCode, Long chatPartnerId) {
+        String key = RedisKeyUtil.sessionKey(sessionId);
+        redisTemplate.opsForHash().put(key, "userId", String.valueOf(userId));
+        redisTemplate.opsForHash().put(key, "chatRoomCode", chatRoomCode);
+        redisTemplate.opsForHash().put(key, "chatPartnerId", String.valueOf(chatPartnerId));
+        redisTemplate.expire(key, TTL);
     }
 
     public Long findUserIdBySession(String sessionId) {
-        String userIdStr = redisTemplate.opsForValue().get(RedisKeyUtil.sessionToUserKey(sessionId));
-        if (userIdStr == null) return null;
-        return Long.valueOf(userIdStr);
+        String val = (String) redisTemplate.opsForHash().get(RedisKeyUtil.sessionKey(sessionId), "userId");
+        return val != null ? Long.valueOf(val) : null;
+    }
+
+    public String findChatRoomCodeBySession(String sessionId) {
+        return (String) redisTemplate.opsForHash().get(RedisKeyUtil.sessionKey(sessionId), "chatRoomCode");
+    }
+
+    public Long findChatPartnerIdBySession(String sessionId) {
+        String val = (String) redisTemplate.opsForHash().get(RedisKeyUtil.sessionKey(sessionId), "chatPartnerId");
+        return val != null ? Long.valueOf(val) : null;
     }
 
     public void removeSession(String sessionId) {
-        redisTemplate.delete(RedisKeyUtil.sessionToUserKey(sessionId));
+        redisTemplate.delete(RedisKeyUtil.sessionKey(sessionId));
     }
 
-    public void savePresence(Long userId, String serverId) {
-        redisTemplate.opsForValue().set(RedisKeyUtil.userPresenceKey(userId), serverId, TTL);
+    public void savePresence(Long userId, String chatRoomCode, String serverId) {
+        redisTemplate.opsForValue().set(RedisKeyUtil.userPresenceKey(chatRoomCode, userId), serverId, TTL);
     }
 
-    public String getPresenceServerId(Long userId) {
-        return redisTemplate.opsForValue().get(RedisKeyUtil.userPresenceKey(userId));
+    public String findPresenceServerId(Long userId, String chatRoomCode) {
+        return redisTemplate.opsForValue().get(RedisKeyUtil.userPresenceKey(chatRoomCode, userId));
     }
 
-    public void removePresence(Long userId) {
-        redisTemplate.delete(RedisKeyUtil.userPresenceKey(userId));
+    public void removePresence(Long userId, String chatRoomCode) {
+        redisTemplate.delete(RedisKeyUtil.userPresenceKey(chatRoomCode, userId));
     }
 
-    public void savePartnerBySession(String sessionId, Long chatPartnerId) {
-        redisTemplate.opsForValue().set(RedisKeyUtil.sessionToPartnerKey(sessionId), String.valueOf(chatPartnerId), TTL);
+    public boolean isOnline(Long userId, String chatRoomCode) {
+        String key = RedisKeyUtil.userPresenceKey(chatRoomCode, userId);
+        return Boolean.TRUE.equals(redisTemplate.hasKey(key));
     }
 
-    public Long getPartnerIdBySession(String sessionId) {
-        String val = redisTemplate.opsForValue().get(RedisKeyUtil.sessionToPartnerKey(sessionId));
-        if (val == null) return null;
-        return Long.valueOf(val);
-    }
-
-    public void removePartnerBySession(String sessionId) {
-        redisTemplate.delete(RedisKeyUtil.sessionToPartnerKey(sessionId));
-    }
-
-    public void refreshTtl(Long userId, String sessionId) {
-        redisTemplate.expire(RedisKeyUtil.userPresenceKey(userId), TTL);
-        redisTemplate.expire(RedisKeyUtil.sessionToUserKey(sessionId), TTL);
-    }
-
-    public boolean isOnline(Long userId) {
-        return redisTemplate.hasKey(RedisKeyUtil.userPresenceKey(userId));
+    public void refreshTtl(Long userId, String chatRoomCode, String sessionId) {
+        redisTemplate.expire(RedisKeyUtil.userPresenceKey(chatRoomCode, userId), TTL);
+        redisTemplate.expire(RedisKeyUtil.sessionKey(sessionId), TTL);
     }
 
 }

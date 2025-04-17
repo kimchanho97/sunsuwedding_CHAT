@@ -1,6 +1,7 @@
 package com.sunsuwedding.chat.controller.api;
 
-import com.sunsuwedding.chat.dto.presece.PresenceStatusMessageResponse;
+import com.sunsuwedding.chat.dto.presence.PresenceStatusDto;
+import com.sunsuwedding.chat.dto.presence.PresenceStatusMessageResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -19,8 +20,15 @@ public class PresenceInternalController {
     private final SimpMessagingTemplate messagingTemplate;
 
     @PostMapping("/push")
-    public ResponseEntity<Void> pushPresence(@RequestBody PresenceStatusMessageResponse status) {
-        messagingTemplate.convertAndSend("/topic/presence/" + status.getUserId(), status);
+    public ResponseEntity<Void> pushPresence(@RequestBody PresenceStatusDto status) {
+        PresenceStatusMessageResponse response = new PresenceStatusMessageResponse(
+                status.getUserId(),
+                status.getStatus()
+        );
+        messagingTemplate.convertAndSend(
+                "/topic/presence/" + status.getChatRoomCode() + "/" + status.getUserId(),
+                response
+        );
         return ResponseEntity.ok().build();
     }
 }

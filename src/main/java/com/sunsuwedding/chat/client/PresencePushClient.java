@@ -1,6 +1,6 @@
 package com.sunsuwedding.chat.client;
 
-import com.sunsuwedding.chat.dto.presece.PresenceStatusMessageResponse;
+import com.sunsuwedding.chat.dto.presence.PresenceStatusDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -13,14 +13,14 @@ public class PresencePushClient {
 
     private final RestTemplate restTemplate;
 
-    public void sendPresence(String serverUrl, PresenceStatusMessageResponse statusMessage) {
+    public void sendPresence(String serverUrl, PresenceStatusDto status) {
         String targetUrl = serverUrl + "/internal/presence/push";
-
         try {
-            restTemplate.postForEntity(targetUrl, statusMessage, Void.class);
+            restTemplate.postForEntity(targetUrl, status, Void.class);
         } catch (Exception e) {
-            log.error("❌ Presence 푸시 실패: {} → {}", statusMessage.getUserId(), serverUrl, e.getMessage());
-            // 필요시 재시도 or DLQ 등록 가능
+            log.error("❌ Presence 푸시 실패: userId={}, server={}, error={}",
+                    status.getUserId(), serverUrl, e.getMessage());
+            // TODO: 재시도, DLQ 등록 가능
         }
     }
 }

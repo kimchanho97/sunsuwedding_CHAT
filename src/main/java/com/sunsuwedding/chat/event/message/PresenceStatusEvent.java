@@ -7,6 +7,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public class PresenceStatusEvent {
     private Long userId;
-    private String status; // "online"
+    private String chatRoomCode;
+    private String status;         // "online"
     private String targetServerId;
 }
