@@ -2,6 +2,7 @@ package com.sunsuwedding.chat.controller.websocket;
 
 
 import com.sunsuwedding.chat.dto.message.ChatMessageRequest;
+import com.sunsuwedding.chat.event.message.ChatMessageRequestEvent;
 import com.sunsuwedding.chat.kafka.producer.ChatMessageProducer;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -9,7 +10,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
 @Slf4j
@@ -17,17 +17,19 @@ import org.springframework.stereotype.Controller;
 @RequiredArgsConstructor
 public class ChatWebSocketController {
 
-    private final SimpMessagingTemplate messagingTemplate;
     private final ChatMessageProducer chatMessageProducer;
 
-    @MessageMapping("/chat-rooms/{roomCode}/messages")
-    public void send(@DestinationVariable String roomCode, @Payload @Valid ChatMessageRequest message) {
-        log.info("🟢 수신 메시지: {}", message);
-
-        // Kafka로 메시지 전송
-        chatMessageProducer.send(message);
-
-        // WebSocket으로 메시지 전송
-        messagingTemplate.convertAndSend("/topic/chat/rooms/" + roomCode, message);
+    @MessageMapping("/chat-rooms/{chatRoomCode}/messages")
+    public void send(@DestinationVariable String chatRoomCode, @Payload @Valid ChatMessageRequest message) {
+        chatMessageProducer.send(
+                ChatMessageRequestEvent.builder()
+                        .chatRoomCode(chatRoomCode)
+                        .messageType(message.getMessageType())
+                        .content(message.getContent())
+                        .senderId(message.getSenderId())
+                        .senderName(message.getSenderName())
+                        .createdAt(message.getCreatedAt())
+                        .build()
+        );
     }
 }
