@@ -24,13 +24,13 @@ public class RedisKeyUtil {
 
     // 채팅방 메타정보 (lastMessage, lastMessageAt, lastMessageSeqId)
     // chat:room:meta:{chatRoomCode}
-    public static String roomMetaKey(String chatRoomCode) {
+    public static String chatRoomMetaKey(String chatRoomCode) {
         return PREFIX + ":room:meta:" + chatRoomCode;
     }
 
     // 채팅방 메시지 시퀀스 ID (Redis INCR로 사용)
     // chat:room:seq:{chatRoomCode} → Long (1부터 시작)
-    public static String roomMessageSeqKey(String chatRoomCode) {
+    public static String chatRoomMessageSeqKey(String chatRoomCode) {
         return PREFIX + ":room:seq:" + chatRoomCode;
     }
 

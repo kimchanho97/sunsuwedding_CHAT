@@ -36,23 +36,9 @@ public class RedisChatRoomStore {
         redisTemplate.opsForValue().set(RedisKeyUtil.lastReadSeqKey(chatRoomCode, userId), "0");
     }
 
-
-//    public void updateChatRoomMeta(String chatRoomCode, String message, Instant sentAt) {
-//        String timestamp = sentAt.toString();
-//
-//        // 1. 메타 정보 갱신
-//        Map<String, String> meta = Map.of(
-//                "lastMessage", message,
-//                "lastMessageAt", timestamp
-//        );
-//        redisTemplate.opsForHash().putAll(ChatRedisKeyUtil.roomMetaKey(chatRoomCode), meta);
-//
-//        // 2. ZSET 점수 갱신
-//        double score = sentAt.toEpochMilli();
-//        // (유저 ID들을 저장하거나 Kafka 컨슈머가 알 수 있으면 동시에 업데이트)
-//        // 예시:
-//        redisTemplate.opsForZSet().add(ChatRedisKeyUtil.sortedRoomKey(유저1), chatRoomCode, score);
-//        redisTemplate.opsForZSet().add(ChatRedisKeyUtil.sortedRoomKey(유저2), chatRoomCode, score);
-//    }
+    public Long nextMessageSeq(String chatRoomCode) {
+        String key = RedisKeyUtil.chatRoomMessageSeqKey(chatRoomCode);
+        return redisTemplate.opsForValue().increment(key);
+    }
 
 }
