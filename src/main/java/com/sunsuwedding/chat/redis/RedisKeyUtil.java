@@ -10,6 +10,12 @@ public class RedisKeyUtil {
         return PREFIX + ":session:" + sessionId;
     }
 
+    // 세션 ID → 상대방 유저 ID 매핑 (1:1 채팅에서만 사용)
+    // chat:session:partner:{sessionId} → partnerUserId
+    public static String sessionToPartnerKey(String sessionId) {
+        return PREFIX + ":session:partner:" + sessionId;
+    }
+
     // 유저 접속 서버 ID (유니캐스트 라우팅용)
     // chat:presence:{userId} → chat-server-1
     public static String userPresenceKey(Long userId) {
