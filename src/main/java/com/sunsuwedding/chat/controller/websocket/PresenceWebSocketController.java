@@ -15,7 +15,7 @@ import org.springframework.stereotype.Controller;
 @Slf4j
 @Controller
 @RequiredArgsConstructor
-public class PresenceController {
+public class PresenceWebSocketController {
 
     private final PresenceService presenceService;
 

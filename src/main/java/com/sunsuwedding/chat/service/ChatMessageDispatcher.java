@@ -32,7 +32,7 @@ public class ChatMessageDispatcher {
     }
 
     private void sendToLocalWebSocket(Long userId, ChatMessageUnicastDto message) {
-        String destination = "/topic/chat/rooms/" + message.getChatRoomCode() + "/" + userId;
+        String destination = "/topic/chat-rooms/" + message.getChatRoomCode() + "/" + userId;
         messagingTemplate.convertAndSend(destination, message);
     }
 

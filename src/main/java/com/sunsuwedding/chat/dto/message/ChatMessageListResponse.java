@@ -7,19 +7,21 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.domain.Slice;
 
 import java.util.List;
+import java.util.Map;
 
 @Getter
 @NoArgsConstructor
-@AllArgsConstructor(staticName = "of")
+@AllArgsConstructor
 public class ChatMessageListResponse {
+
     private List<ChatMessageResponse> data;
     private boolean hasNext;
 
-    public static ChatMessageListResponse from(Slice<ChatMessageDocument> slice) {
+    public static ChatMessageListResponse from(Slice<ChatMessageDocument> slice, Map<Long, Long> userReadSeqMap) {
         List<ChatMessageResponse> messages = slice.getContent().stream()
-                .map(ChatMessageResponse::from)
+                .map(doc -> ChatMessageResponse.from(doc, userReadSeqMap))
                 .toList();
 
-        return ChatMessageListResponse.of(messages, slice.hasNext());
+        return new ChatMessageListResponse(messages, slice.hasNext());
     }
 }

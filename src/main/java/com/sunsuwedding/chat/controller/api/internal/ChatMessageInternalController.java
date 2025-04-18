@@ -17,7 +17,7 @@ public class ChatMessageInternalController {
 
     @PostMapping("/unicast/{userId}")
     public ResponseEntity<Void> unicastMessage(@PathVariable Long userId, @RequestBody ChatMessageUnicastDto message) {
-        String destination = "/topic/chat/rooms/" + message.getChatRoomCode() + "/" + userId;
+        String destination = "/topic/chat-rooms/" + message.getChatRoomCode() + "/" + userId;
         messagingTemplate.convertAndSend(destination, message);
         return ResponseEntity.ok().build();
 

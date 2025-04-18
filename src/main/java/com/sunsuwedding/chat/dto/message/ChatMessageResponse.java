@@ -6,23 +6,36 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
 
 @Getter
 @NoArgsConstructor
-@AllArgsConstructor(staticName = "of")
+@AllArgsConstructor
 public class ChatMessageResponse {
 
-    private String id;
     private Long senderId;
     private String senderName;
     private String content;
     private String messageType;
     private LocalDateTime createdAt;
+    private Long sequenceId;
+    private List<Long> readBy;
 
-    public static ChatMessageResponse from(ChatMessageDocument doc) {
-        return ChatMessageResponse.of(
-                doc.getId(), doc.getSenderId(), doc.getSenderName(),
-                doc.getContent(), doc.getMessageType(), doc.getCreatedAt()
+    public static ChatMessageResponse from(ChatMessageDocument doc, Map<Long, Long> userReadSeqMap) {
+        List<Long> readBy = userReadSeqMap.entrySet().stream()
+                .filter(entry -> entry.getValue() >= doc.getMessageSeqId())
+                .map(Map.Entry::getKey)
+                .toList();
+
+        return new ChatMessageResponse(
+                doc.getSenderId(),
+                doc.getSenderName(),
+                doc.getContent(),
+                doc.getMessageType(),
+                doc.getCreatedAt(),
+                doc.getMessageSeqId(),
+                readBy
         );
     }
 }
