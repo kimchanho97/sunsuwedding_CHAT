@@ -1,6 +1,7 @@
 package com.sunsuwedding.chat.dto.message;
 
 import com.sunsuwedding.chat.domain.ChatMessageDocument;
+import com.sunsuwedding.chat.event.ChatMessageSavedEvent;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -38,4 +39,17 @@ public class ChatMessageResponse {
                 readBy
         );
     }
+
+    public static ChatMessageResponse from(ChatMessageSavedEvent event, List<Long> onlineUserIds) {
+        return new ChatMessageResponse(
+                event.getSenderId(),
+                event.getSenderName(),
+                event.getContent(),
+                event.getMessageType(),
+                event.getCreatedAt(),
+                event.getSequenceId(),
+                onlineUserIds
+        );
+    }
+
 }

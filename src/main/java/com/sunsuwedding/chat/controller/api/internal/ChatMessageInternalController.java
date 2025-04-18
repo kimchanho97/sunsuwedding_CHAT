@@ -1,6 +1,6 @@
 package com.sunsuwedding.chat.controller.api.internal;
 
-import com.sunsuwedding.chat.dto.message.ChatMessageUnicastDto;
+import com.sunsuwedding.chat.dto.message.ChatMessageResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -15,11 +15,11 @@ public class ChatMessageInternalController {
 
     private final SimpMessagingTemplate messagingTemplate;
 
-    @PostMapping("/unicast/{userId}")
-    public ResponseEntity<Void> unicastMessage(@PathVariable Long userId, @RequestBody ChatMessageUnicastDto message) {
-        String destination = "/topic/chat-rooms/" + message.getChatRoomCode() + "/" + userId;
+    @PostMapping("/unicast/{chatRoomCode}")
+    public ResponseEntity<Void> broadcastToChatRoom(@PathVariable String chatRoomCode,
+                                                    @RequestBody ChatMessageResponse message) {
+        String destination = "/topic/chat-rooms/" + chatRoomCode;
         messagingTemplate.convertAndSend(destination, message);
         return ResponseEntity.ok().build();
     }
 }
-

@@ -1,6 +1,6 @@
 package com.sunsuwedding.chat.client;
 
-import com.sunsuwedding.chat.dto.message.ChatMessageUnicastDto;
+import com.sunsuwedding.chat.dto.message.ChatMessageResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -13,13 +13,12 @@ public class RemoteMessagePushClient {
 
     private final RestTemplate restTemplate;
 
-    public void sendUnicastMessage(String serverBaseUrl, Long userId, ChatMessageUnicastDto message) {
-        String endpoint = serverBaseUrl + "/internal/chat/messages/unicast/" + userId;
+    public void sendUnicastMessage(String serverBaseUrl, String chatRoomCode, ChatMessageResponse message) {
+        String endpoint = serverBaseUrl + "/internal/chat/messages/unicast/" + chatRoomCode;
         try {
             restTemplate.postForEntity(endpoint, message, Void.class);
         } catch (Exception e) {
-            log.error("❌ 유니캐스트 메시지 전송 실패 - url={}, userId={}, error={}", endpoint, userId, e.getMessage());
-            // TODO: 나중에 retry, DLQ, metrics 전송 등 확장 가능
+            log.error("❌ 유니캐스트 메시지 전송 실패 - url={}, chatRoomCode={}, error={}", endpoint, chatRoomCode, e.getMessage());
         }
     }
 }

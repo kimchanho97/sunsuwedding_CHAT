@@ -2,7 +2,7 @@ package com.sunsuwedding.chat.kafka.producer;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sunsuwedding.chat.event.PresenceStatusEvent;
+import com.sunsuwedding.chat.event.ChatMessageUnicastEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -11,18 +11,19 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class PresenceStatusProducer {
+public class ChatMessageUnicastEventPublisher {
 
-    private final KafkaTemplate<String, String> kafkaTemplate;
     private final ObjectMapper objectMapper;
+    private final KafkaTemplate<String, String> kafkaTemplate;
 
-    public void send(PresenceStatusEvent event) {
+    private static final String TOPIC = "chat-message-unicast";
+
+    public void publish(ChatMessageUnicastEvent event) {
         try {
             String payload = objectMapper.writeValueAsString(event);
-            kafkaTemplate.send("presence-status", String.valueOf(event.getUserId()), payload);
-            // TODO: 추가적으로 전송 실패시 콜백 처리도 가능
+            kafkaTemplate.send(TOPIC, event.targetServerUrl(), payload); // key는 서버 단위 파티셔닝용
         } catch (JsonProcessingException e) {
-            log.error("❌ Kafka 직렬화 실패 - 이벤트 구조 확인 필요: {}", event, e);
+            log.error("❌ ChatMessageUnicastEvent 직렬화 실패", e);
         }
     }
 }
