@@ -20,7 +20,6 @@ public class ChatMessageInternalController {
         String destination = "/topic/chat-rooms/" + message.getChatRoomCode() + "/" + userId;
         messagingTemplate.convertAndSend(destination, message);
         return ResponseEntity.ok().build();
-
     }
 }
 

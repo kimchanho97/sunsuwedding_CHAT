@@ -5,6 +5,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -19,11 +20,19 @@ public class RedisChatRoomStore {
         redisTemplate.opsForZSet().add(RedisKeyUtil.userChatRoomsKey(userId), chatRoomCode, now);
     }
 
-    public boolean isUserInChatRoom(String chatRoomCode, Long userId) {
-        Set<String> userRoomCodes = redisTemplate.opsForZSet()
-                .range(RedisKeyUtil.userChatRoomsKey(userId), 0, -1);
+    public void addMemberToChatRoom(String chatRoomCode, Long userId) {
+        String key = RedisKeyUtil.chatRoomMembersKey(chatRoomCode);
+        redisTemplate.opsForSet().add(key, String.valueOf(userId));
+    }
 
-        return userRoomCodes != null && userRoomCodes.contains(chatRoomCode);
+    public Set<String> getChatRoomMembers(String chatRoomCode) {
+        String key = RedisKeyUtil.chatRoomMembersKey(chatRoomCode);
+        return redisTemplate.opsForSet().members(key);
+    }
+
+    public boolean isMemberOfChatRoom(String chatRoomCode, Long userId) {
+        String key = RedisKeyUtil.chatRoomMembersKey(chatRoomCode);
+        return Boolean.TRUE.equals(redisTemplate.opsForSet().isMember(key, String.valueOf(userId)));
     }
 
     public Long nextMessageSeq(String chatRoomCode) {
@@ -39,6 +48,12 @@ public class RedisChatRoomStore {
                 "lastMessageSeqId", String.valueOf(lastSeqId)
         );
         redisTemplate.opsForHash().putAll(key, value);
+    }
+
+    public void addMembersToChatRoom(String chatRoomCode, List<Long> userIds) {
+        String key = RedisKeyUtil.chatRoomMembersKey(chatRoomCode);
+        String[] userIdStrings = userIds.stream().map(String::valueOf).toArray(String[]::new);
+        redisTemplate.opsForSet().add(key, userIdStrings);
     }
 
 }

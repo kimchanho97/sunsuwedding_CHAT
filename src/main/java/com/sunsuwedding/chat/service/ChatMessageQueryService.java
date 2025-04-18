@@ -1,6 +1,5 @@
 package com.sunsuwedding.chat.service;
 
-import com.sunsuwedding.chat.client.ChatRoomApiClient;
 import com.sunsuwedding.chat.common.response.PaginationResponse;
 import com.sunsuwedding.chat.domain.ChatMessageDocument;
 import com.sunsuwedding.chat.dto.message.ChatMessageResponse;
@@ -20,14 +19,14 @@ import java.util.Map;
 public class ChatMessageQueryService {
 
     private final ChatMessageMongoRepository repository;
-    private final ChatRoomApiClient chatRoomApiClient;
     private final RedisChatReadStore redisChatReadStore;
+    private final ChatRoomParticipantService chatRoomParticipantService;
 
     public PaginationResponse<ChatMessageResponse> getMessages(String chatRoomCode, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         Slice<ChatMessageDocument> slice = repository.findByChatRoomCodeOrderByCreatedAtDesc(chatRoomCode, pageable);
 
-        List<Long> participantIds = chatRoomApiClient.getParticipantUserIds(chatRoomCode);
+        List<Long> participantIds = chatRoomParticipantService.getParticipantUserIds(chatRoomCode);
         Map<Long, Long> userReadSeqMap = redisChatReadStore.getUserReadSequences(chatRoomCode, participantIds);
 
         List<ChatMessageResponse> responses = slice.getContent().stream()
