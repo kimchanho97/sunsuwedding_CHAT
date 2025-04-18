@@ -30,7 +30,6 @@ public class KafkaProducerConfig {
         config.put(ProducerConfig.ACKS_CONFIG, "all");
         config.put(ProducerConfig.RETRIES_CONFIG, 5);
         config.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, true);
-        config.put(ProducerConfig.TRANSACTIONAL_ID_CONFIG, "chat-tx-id");
 
         return new DefaultKafkaProducerFactory<>(config);
     }
@@ -38,7 +37,7 @@ public class KafkaProducerConfig {
     @Bean
     public KafkaTemplate<String, String> kafkaTemplate() {
         KafkaTemplate<String, String> kafkaTemplate = new KafkaTemplate<>(producerFactory());
-        kafkaTemplate.setTransactionIdPrefix("chat-tx-"); // (선택적으로 prefix 설정 가능)
+        kafkaTemplate.setTransactionIdPrefix("chat-tx-"); // Spring이 자동으로 트랜잭션 ID를 생성하도록 prefix 지정
         return kafkaTemplate;
     }
 
