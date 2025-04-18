@@ -1,4 +1,4 @@
-package com.sunsuwedding.chat.controller.api.internal;
+package com.sunsuwedding.chat.controller.internal;
 
 import com.sunsuwedding.chat.dto.message.ChatMessageResponse;
 import lombok.RequiredArgsConstructor;

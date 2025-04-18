@@ -2,7 +2,7 @@ package com.sunsuwedding.chat.kafka.consumer;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sunsuwedding.chat.client.RemoteMessagePushClient;
+import com.sunsuwedding.chat.client.interserver.ChatMessageInterServerClient;
 import com.sunsuwedding.chat.dto.message.ChatMessageResponse;
 import com.sunsuwedding.chat.event.ChatMessageUnicastEvent;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +19,7 @@ public class ChatMessageUnicastConsumer {
 
     private final ObjectMapper objectMapper;
     private final SimpMessagingTemplate messagingTemplate;
-    private final RemoteMessagePushClient remoteMessagePushClient;
+    private final ChatMessageInterServerClient chatMessageInterServerClient;
 
     @Value("${current.server-url}")
     private String currentServerUrl;
@@ -28,7 +28,7 @@ public class ChatMessageUnicastConsumer {
     public void consume(String payload) {
         try {
             ChatMessageUnicastEvent event = objectMapper.readValue(payload, ChatMessageUnicastEvent.class);
-            handleEvent(event);
+            handleUnicast(event);
         } catch (JsonProcessingException e) {
             log.error("❌ ChatMessageUnicastEvent 역직렬화 실패: {}", payload, e);
         } catch (Exception e) {
@@ -36,19 +36,23 @@ public class ChatMessageUnicastConsumer {
         }
     }
 
-    private void handleEvent(ChatMessageUnicastEvent event) {
+    private void handleUnicast(ChatMessageUnicastEvent event) {
+        ChatMessageResponse message = event.response();
         String chatRoomCode = event.chatRoomCode();
-        ChatMessageResponse message = event.message();
 
         if (currentServerUrl.equals(event.targetServerUrl())) {
             sendToWebSocket(chatRoomCode, message);
         } else {
-            remoteMessagePushClient.sendUnicastMessage(event.targetServerUrl(), chatRoomCode, message);
+            sendToRemoteServer(event.targetServerUrl(), chatRoomCode, message);
         }
     }
 
-    private void sendToWebSocket(String chatRoomCode, ChatMessageResponse response) {
+    private void sendToWebSocket(String chatRoomCode, ChatMessageResponse message) {
         String destination = "/topic/chat-rooms/" + chatRoomCode;
-        messagingTemplate.convertAndSend(destination, response);
+        messagingTemplate.convertAndSend(destination, message);
+    }
+
+    private void sendToRemoteServer(String targetServerUrl, String chatRoomCode, ChatMessageResponse message) {
+        chatMessageInterServerClient.sendUnicastMessage(targetServerUrl, chatRoomCode, message);
     }
 }

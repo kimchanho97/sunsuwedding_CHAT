@@ -2,7 +2,7 @@ package com.sunsuwedding.chat.kafka.consumer;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sunsuwedding.chat.client.PresencePushClient;
+import com.sunsuwedding.chat.client.interserver.PresenceInterServerClient;
 import com.sunsuwedding.chat.dto.presence.PresenceStatusDto;
 import com.sunsuwedding.chat.dto.presence.PresenceStatusMessageResponse;
 import com.sunsuwedding.chat.event.PresenceStatusEvent;
@@ -16,53 +16,51 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class PresenceStatusConsumer {
+public class PresenceUnicastConsumer {
 
     private final SimpMessagingTemplate messagingTemplate;
     private final ObjectMapper objectMapper;
-    private final PresencePushClient presencePushClient;
+    private final PresenceInterServerClient presenceInterServerClient;
 
     @Value("${current.server-url}")
     private String currentServerUrl;
 
-    @KafkaListener(topics = "presence-status", groupId = "presence-consumer-group")
-    public void consume(String rawMessage) {
+    @KafkaListener(topics = "presence-status", groupId = "presence-unicast-group")
+    public void consume(String payload) {
         try {
-            PresenceStatusEvent event = objectMapper.readValue(rawMessage, PresenceStatusEvent.class);
-            handleEvent(event);
+            PresenceStatusEvent event = objectMapper.readValue(payload, PresenceStatusEvent.class);
+            handleUnicast(event);
         } catch (JsonProcessingException e) {
-            log.error("❌ PresenceStatusEvent 직렬화 실패: {}", rawMessage, e);
+            log.error("❌ PresenceStatusEvent 역직렬화 실패: {}", payload, e);
         } catch (Exception e) {
             log.error("❌ PresenceStatusEvent 처리 실패", e);
         }
     }
 
-    private void handleEvent(PresenceStatusEvent event) {
-        PresenceStatusDto status = new PresenceStatusDto(
+    private void handleUnicast(PresenceStatusEvent event) {
+        PresenceStatusDto message = new PresenceStatusDto(
                 event.getUserId(),
                 event.getChatRoomCode(),
                 event.getStatus()
         );
 
         if (currentServerUrl.equals(event.getTargetServerUrl())) {
-            pushToWebSocket(status);
+            sendToWebSocket(message);
         } else {
-            pushToRemoteServer(event.getTargetServerUrl(), status);
+            sendToRemoteServer(event.getTargetServerUrl(), message);
         }
     }
 
-    private void pushToWebSocket(PresenceStatusDto status) {
+    private void sendToWebSocket(PresenceStatusDto message) {
         PresenceStatusMessageResponse response = new PresenceStatusMessageResponse(
-                status.getUserId(),
-                status.getStatus()
+                message.getUserId(),
+                message.getStatus()
         );
-        messagingTemplate.convertAndSend(
-                "/topic/presence/" + status.getChatRoomCode() + "/" + status.getUserId(),
-                response
-        );
+        String destination = "/topic/presence/" + message.getChatRoomCode() + "/" + message.getUserId();
+        messagingTemplate.convertAndSend(destination, response);
     }
 
-    private void pushToRemoteServer(String serverUrl, PresenceStatusDto status) {
-        presencePushClient.sendPresence(serverUrl, status);
+    private void sendToRemoteServer(String targetServerUrl, PresenceStatusDto message) {
+        presenceInterServerClient.sendPresence(targetServerUrl, message);
     }
 }

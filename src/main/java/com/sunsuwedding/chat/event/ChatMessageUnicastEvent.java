@@ -7,7 +7,7 @@ import java.util.List;
 public record ChatMessageUnicastEvent(
         String chatRoomCode,
         String targetServerUrl,
-        ChatMessageResponse message
+        ChatMessageResponse response
 ) {
     public static ChatMessageUnicastEvent from(
             ChatMessageSavedEvent savedEvent,

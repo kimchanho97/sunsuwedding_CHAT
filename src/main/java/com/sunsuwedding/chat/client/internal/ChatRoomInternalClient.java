@@ -1,4 +1,4 @@
-package com.sunsuwedding.chat.client;
+package com.sunsuwedding.chat.client.internal;
 
 import com.sunsuwedding.chat.common.exception.ChatErrorCode;
 import com.sunsuwedding.chat.common.exception.CustomException;
@@ -17,7 +17,7 @@ import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
-public class ChatRoomApiClient {
+public class ChatRoomInternalClient {
 
     private final RestTemplate restTemplate;
 

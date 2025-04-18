@@ -1,6 +1,6 @@
 package com.sunsuwedding.chat.service;
 
-import com.sunsuwedding.chat.client.ChatRoomApiClient;
+import com.sunsuwedding.chat.client.internal.ChatRoomInternalClient;
 import com.sunsuwedding.chat.redis.RedisChatRoomStore;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -12,7 +12,7 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class ChatRoomParticipantService {
 
-    private final ChatRoomApiClient chatRoomApiClient;
+    private final ChatRoomInternalClient chatRoomInternalClient;
     private final RedisChatRoomStore redisChatRoomStore;
 
     public List<Long> getParticipantUserIds(String chatRoomCode) {
@@ -24,7 +24,7 @@ public class ChatRoomParticipantService {
         }
 
         // Redis에 없을 경우 → RDB 조회
-        List<Long> userIds = chatRoomApiClient.getParticipantUserIds(chatRoomCode);
+        List<Long> userIds = chatRoomInternalClient.getParticipantUserIds(chatRoomCode);
 
         // Redis 캐시 갱신
         redisChatRoomStore.addMembersToChatRoom(chatRoomCode, userIds);

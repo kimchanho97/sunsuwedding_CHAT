@@ -1,4 +1,4 @@
-package com.sunsuwedding.chat.client;
+package com.sunsuwedding.chat.client.interserver;
 
 import com.sunsuwedding.chat.dto.presence.PresenceStatusDto;
 import lombok.RequiredArgsConstructor;
@@ -9,7 +9,7 @@ import org.springframework.web.client.RestTemplate;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class PresencePushClient {
+public class PresenceInterServerClient {
 
     private final RestTemplate restTemplate;
 

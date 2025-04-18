@@ -1,4 +1,4 @@
-package com.sunsuwedding.chat.controller.api;
+package com.sunsuwedding.chat.controller.external;
 
 import com.sunsuwedding.chat.common.response.PaginationResponse;
 import com.sunsuwedding.chat.dto.message.ChatMessageResponse;

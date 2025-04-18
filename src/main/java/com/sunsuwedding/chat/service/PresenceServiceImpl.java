@@ -1,7 +1,7 @@
 package com.sunsuwedding.chat.service;
 
 import com.sunsuwedding.chat.event.PresenceStatusEvent;
-import com.sunsuwedding.chat.kafka.producer.PresenceStatusProducer;
+import com.sunsuwedding.chat.kafka.producer.PresenceUnicastProducer;
 import com.sunsuwedding.chat.redis.RedisChatReadStore;
 import com.sunsuwedding.chat.redis.RedisPresenceStore;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +17,7 @@ import java.util.List;
 public class PresenceServiceImpl implements PresenceService {
 
     private final RedisPresenceStore redisPresenceStore;
-    private final PresenceStatusProducer presenceStatusProducer;
+    private final PresenceUnicastProducer presenceUnicastProducer;
     private final ChatRoomParticipantService chatRoomParticipantService;
     private final RedisChatReadStore redisChatReadStore;
 
@@ -40,14 +40,14 @@ public class PresenceServiceImpl implements PresenceService {
 
             // 3-1. 상대방이 online이면, 상대방의 상태를 내 서버로 전파
             if (redisPresenceStore.isOnline(otherUserId, chatRoomCode)) {
-                presenceStatusProducer.send(
+                presenceUnicastProducer.send(
                         new PresenceStatusEvent(otherUserId, chatRoomCode, "online", currentServerUrl)
                 );
             }
             // 3-2. 내 상태를 상대방 서버로 전파
             String otherServerUrl = redisPresenceStore.findPresenceServerUrl(otherUserId, chatRoomCode);
             if (otherServerUrl != null) {
-                presenceStatusProducer.send(
+                presenceUnicastProducer.send(
                         new PresenceStatusEvent(userId, chatRoomCode, "online", otherServerUrl)
                 );
             }
@@ -79,7 +79,7 @@ public class PresenceServiceImpl implements PresenceService {
             String targetServerUrl = redisPresenceStore.findPresenceServerUrl(otherUserId, chatRoomCode);
 
             if (targetServerUrl != null) {
-                presenceStatusProducer.send(
+                presenceUnicastProducer.send(
                         new PresenceStatusEvent(userId, chatRoomCode, "offline", targetServerUrl)
                 );
             }

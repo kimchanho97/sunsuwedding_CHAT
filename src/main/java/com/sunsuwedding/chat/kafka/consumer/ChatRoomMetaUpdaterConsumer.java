@@ -16,7 +16,7 @@ public class ChatRoomMetaUpdaterConsumer {
     private final ObjectMapper objectMapper;
     private final RedisChatRoomStore redisChatRoomStore;
 
-    @KafkaListener(topics = "chat-message-saved", groupId = "chat-meta-group")
+    @KafkaListener(topics = "chat-message-saved", groupId = "chat-room-meta-group")
     public void consume(String payload) {
         try {
             ChatMessageSavedEvent event = objectMapper.readValue(payload, ChatMessageSavedEvent.class);

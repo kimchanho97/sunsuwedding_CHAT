@@ -1,6 +1,6 @@
 package com.sunsuwedding.chat.service;
 
-import com.sunsuwedding.chat.client.ChatRoomApiClient;
+import com.sunsuwedding.chat.client.internal.ChatRoomInternalClient;
 import com.sunsuwedding.chat.dto.room.ChatRoomCreateRequest;
 import com.sunsuwedding.chat.dto.room.ChatRoomCreateResponse;
 import com.sunsuwedding.chat.dto.room.ChatRoomValidationRequest;
@@ -13,13 +13,13 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class ChatRoomService {
 
-    private final ChatRoomApiClient chatRoomApiClient;
+    private final ChatRoomInternalClient chatRoomInternalClient;
     private final RedisChatRoomStore redisChatRoomStore;
     private final RedisChatReadStore redisChatReadStore;
 
     public ChatRoomCreateResponse createChatRoom(ChatRoomCreateRequest request) {
         // RDB에 채팅방 생성 요청
-        ChatRoomCreateResponse response = chatRoomApiClient.createOrFindChatRoom(request);
+        ChatRoomCreateResponse response = chatRoomInternalClient.createOrFindChatRoom(request);
 
         // Redis 등록
         redisChatRoomStore.addChatRoomToUser(request.userId(), response.chatRoomCode());
@@ -37,6 +37,6 @@ public class ChatRoomService {
         if (redisChatRoomStore.isMemberOfChatRoom(request.getChatRoomCode(), request.getUserId())) {
             return true;
         }
-        return chatRoomApiClient.validateChatRoom(request);
+        return chatRoomInternalClient.validateChatRoom(request);
     }
 }

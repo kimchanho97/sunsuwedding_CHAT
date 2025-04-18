@@ -43,7 +43,7 @@ public class ChatMessagePersistenceConsumer {
 
             ack.acknowledge();
         } catch (Exception e) {
-            log.error("❌ chat-message 컨슘 실패", e);
+            log.error("❌ chat-response 컨슘 실패", e);
         }
     }
 }

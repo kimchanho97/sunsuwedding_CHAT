@@ -16,12 +16,10 @@ public class ChatMessageUnicastEventPublisher {
     private final ObjectMapper objectMapper;
     private final KafkaTemplate<String, String> kafkaTemplate;
 
-    private static final String TOPIC = "chat-message-unicast";
-
     public void publish(ChatMessageUnicastEvent event) {
         try {
             String payload = objectMapper.writeValueAsString(event);
-            kafkaTemplate.send(TOPIC, event.targetServerUrl(), payload); // key는 서버 단위 파티셔닝용
+            kafkaTemplate.send("chat-message-unicast", event.targetServerUrl(), payload); // key는 서버 단위 파티셔닝용
         } catch (JsonProcessingException e) {
             log.error("❌ ChatMessageUnicastEvent 직렬화 실패", e);
         }
