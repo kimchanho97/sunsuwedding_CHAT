@@ -1,4 +1,4 @@
-package com.sunsuwedding.chat.event.message;
+package com.sunsuwedding.chat.event;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

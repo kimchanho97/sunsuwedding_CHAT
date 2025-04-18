@@ -1,15 +1,14 @@
 package com.sunsuwedding.chat.kafka.consumer;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sunsuwedding.chat.event.message.ChatMessageRequestEvent;
-import com.sunsuwedding.chat.event.message.ChatMessageSavedEvent;
+import com.sunsuwedding.chat.event.ChatMessageRequestEvent;
+import com.sunsuwedding.chat.event.ChatMessageSavedEvent;
+import com.sunsuwedding.chat.kafka.producer.ChatMessageSavedEventProducer;
 import com.sunsuwedding.chat.redis.RedisChatRoomStore;
 import com.sunsuwedding.chat.repository.ChatMessageMongoRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.kafka.core.KafkaOperations;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Component;
@@ -19,9 +18,10 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class ChatMessagePersistenceConsumer {
 
-    private final ObjectMapper objectMapper;
     private final ChatMessageMongoRepository mongoRepository;
     private final KafkaTemplate<String, String> kafkaTemplate;
+    private final ObjectMapper objectMapper;
+    private final ChatMessageSavedEventProducer chatMessageSavedEventProducer;
     private final RedisChatRoomStore redisChatRoomStore;
 
     @KafkaListener(topics = "chat-message", groupId = "chat-persistence-group")
@@ -37,7 +37,7 @@ public class ChatMessagePersistenceConsumer {
 
                 // 3. 후속 이벤트 발행
                 ChatMessageSavedEvent event = ChatMessageSavedEvent.from(request, messageSeqId);
-                sendSavedEvent(template, event);
+                chatMessageSavedEventProducer.sendTransactional(template, event);
                 return true;
             });
 
@@ -46,14 +46,4 @@ public class ChatMessagePersistenceConsumer {
             log.error("❌ chat-message 컨슘 실패", e);
         }
     }
-
-    private void sendSavedEvent(KafkaOperations<String, String> kafkaOps, ChatMessageSavedEvent event) {
-        try {
-            String payload = objectMapper.writeValueAsString(event);
-            kafkaOps.send("chat-message-saved", event.getChatRoomCode(), payload);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException("후속 이벤트 직렬화 실패", e);
-        }
-    }
-
 }

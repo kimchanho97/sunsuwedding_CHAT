@@ -1,6 +1,6 @@
 package com.sunsuwedding.chat.service;
 
-import com.sunsuwedding.chat.event.message.PresenceStatusEvent;
+import com.sunsuwedding.chat.event.PresenceStatusEvent;
 import com.sunsuwedding.chat.kafka.producer.PresenceStatusProducer;
 import com.sunsuwedding.chat.redis.RedisChatReadStore;
 import com.sunsuwedding.chat.redis.RedisPresenceStore;

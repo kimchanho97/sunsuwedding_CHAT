@@ -1,4 +1,4 @@
-package com.sunsuwedding.chat.event.message;
+package com.sunsuwedding.chat.event;
 
 import com.sunsuwedding.chat.domain.ChatMessageDocument;
 import com.sunsuwedding.chat.dto.message.ChatMessageRequest;

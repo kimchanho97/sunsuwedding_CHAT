@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sunsuwedding.chat.client.PresencePushClient;
 import com.sunsuwedding.chat.dto.presence.PresenceStatusDto;
 import com.sunsuwedding.chat.dto.presence.PresenceStatusMessageResponse;
-import com.sunsuwedding.chat.event.message.PresenceStatusEvent;
+import com.sunsuwedding.chat.event.PresenceStatusEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;

@@ -2,7 +2,7 @@ package com.sunsuwedding.chat.controller.websocket;
 
 
 import com.sunsuwedding.chat.dto.message.ChatMessageRequest;
-import com.sunsuwedding.chat.event.message.ChatMessageRequestEvent;
+import com.sunsuwedding.chat.event.ChatMessageRequestEvent;
 import com.sunsuwedding.chat.kafka.producer.ChatMessageProducer;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
