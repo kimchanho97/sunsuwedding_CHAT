@@ -12,6 +12,4 @@ public class PresenceMessageRequest {
 
     @NotNull(message = "userId는 필수입니다.")
     private Long userId;
-    @NotNull(message = "chatPartnerId는 필수입니다.")
-    private Long chatPartnerId;
 }

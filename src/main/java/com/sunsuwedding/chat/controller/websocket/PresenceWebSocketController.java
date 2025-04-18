@@ -23,7 +23,7 @@ public class PresenceWebSocketController {
     public void handlePresence(@DestinationVariable String chatRoomCode,
                                @Valid @Payload PresenceMessageRequest message,
                                @Header("simpSessionId") String sessionId) {
-        presenceService.handleConnect(message.getUserId(), message.getChatPartnerId(), chatRoomCode, sessionId);
+        presenceService.handleConnect(message.getUserId(), chatRoomCode, sessionId);
     }
 
     @MessageMapping("/presence/ping/{chatRoomCode}")

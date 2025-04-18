@@ -16,11 +16,10 @@ public class RedisPresenceStore {
     private final RedisTemplate<String, String> redisTemplate;
     private static final Duration TTL = Duration.ofSeconds(180);
 
-    public void saveSession(String sessionId, Long userId, String chatRoomCode, Long chatPartnerId) {
+    public void saveSession(String sessionId, Long userId, String chatRoomCode) {
         String key = RedisKeyUtil.sessionKey(sessionId);
         redisTemplate.opsForHash().put(key, "userId", String.valueOf(userId));
         redisTemplate.opsForHash().put(key, "chatRoomCode", chatRoomCode);
-        redisTemplate.opsForHash().put(key, "chatPartnerId", String.valueOf(chatPartnerId));
         redisTemplate.expire(key, TTL);
     }
 
@@ -31,11 +30,6 @@ public class RedisPresenceStore {
 
     public String findChatRoomCodeBySession(String sessionId) {
         return (String) redisTemplate.opsForHash().get(RedisKeyUtil.sessionKey(sessionId), "chatRoomCode");
-    }
-
-    public Long findChatPartnerIdBySession(String sessionId) {
-        String val = (String) redisTemplate.opsForHash().get(RedisKeyUtil.sessionKey(sessionId), "chatPartnerId");
-        return val != null ? Long.valueOf(val) : null;
     }
 
     public void removeSession(String sessionId) {
