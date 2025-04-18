@@ -19,7 +19,7 @@ public class ChatMessageProducer {
     public void send(ChatMessageRequestEvent event) {
         try {
             String payload = objectMapper.writeValueAsString(event);
-            kafkaTemplate.send("chat-message", payload);
+            kafkaTemplate.send("chat-message", event.getChatRoomCode(), payload); // key 설정
         } catch (JsonProcessingException e) {
             throw new RuntimeException("Kafka 메시지 직렬화 실패", e);
         }

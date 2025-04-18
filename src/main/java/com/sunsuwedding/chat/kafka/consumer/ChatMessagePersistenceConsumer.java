@@ -50,7 +50,7 @@ public class ChatMessagePersistenceConsumer {
     private void sendSavedEvent(KafkaOperations<String, String> kafkaOps, ChatMessageSavedEvent event) {
         try {
             String payload = objectMapper.writeValueAsString(event);
-            kafkaOps.send("chat-message-saved", payload);
+            kafkaOps.send("chat-message-saved", event.getChatRoomCode(), payload);
         } catch (JsonProcessingException e) {
             throw new RuntimeException("후속 이벤트 직렬화 실패", e);
         }
