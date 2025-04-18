@@ -5,6 +5,9 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -61,4 +64,15 @@ public class RedisPresenceStore {
         redisTemplate.expire(RedisKeyUtil.sessionKey(sessionId), TTL);
     }
 
+    public Map<Long, String> findOnlineUsersWithServerId(String chatRoomCode) {
+        String pattern = "chat:presence:" + chatRoomCode + ":*";
+        Set<String> keys = redisTemplate.keys(pattern);
+        if (keys.isEmpty()) return Map.of();
+
+        return keys.stream()
+                .collect(Collectors.toMap(
+                        key -> Long.valueOf(key.substring(key.lastIndexOf(":") + 1)),
+                        key -> redisTemplate.opsForValue().get(key)
+                ));
+    }
 }

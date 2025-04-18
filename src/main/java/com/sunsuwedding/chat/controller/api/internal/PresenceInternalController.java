@@ -1,4 +1,4 @@
-package com.sunsuwedding.chat.controller.api;
+package com.sunsuwedding.chat.controller.api.internal;
 
 import com.sunsuwedding.chat.dto.presence.PresenceStatusDto;
 import com.sunsuwedding.chat.dto.presence.PresenceStatusMessageResponse;
