@@ -6,7 +6,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Builder
 @Getter
@@ -20,5 +19,16 @@ public class ChatMessageSavedEvent {
     private String messageType;
     private LocalDateTime createdAt;
     private Long sequenceId;
-    private List<Long> readBy; // 초기엔 senderId만 포함
+
+    public static ChatMessageSavedEvent from(ChatMessageRequestEvent request, Long seqId) {
+        return ChatMessageSavedEvent.builder()
+                .chatRoomCode(request.getChatRoomCode())
+                .senderId(request.getSenderId())
+                .senderName(request.getSenderName())
+                .content(request.getContent())
+                .messageType(request.getMessageType())
+                .createdAt(request.getCreatedAt())
+                .sequenceId(seqId)
+                .build();
+    }
 }

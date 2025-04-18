@@ -2,7 +2,6 @@ package com.sunsuwedding.chat.kafka.consumer;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sunsuwedding.chat.domain.ChatMessageDocument;
 import com.sunsuwedding.chat.event.message.ChatMessageRequestEvent;
 import com.sunsuwedding.chat.event.message.ChatMessageSavedEvent;
 import com.sunsuwedding.chat.redis.RedisChatRoomStore;
@@ -14,8 +13,6 @@ import org.springframework.kafka.core.KafkaOperations;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 @Slf4j
 @Component
@@ -36,11 +33,10 @@ public class ChatMessagePersistenceConsumer {
                 Long messageSeqId = redisChatRoomStore.nextMessageSeq(request.getChatRoomCode());
 
                 // 2. MongoDB 저장
-                ChatMessageDocument document = toDocument(request, messageSeqId);
-                mongoRepository.save(document);
+                mongoRepository.save(request.toDocument(messageSeqId));
 
                 // 3. 후속 이벤트 발행
-                ChatMessageSavedEvent event = toSavedEvent(request, messageSeqId);
+                ChatMessageSavedEvent event = ChatMessageSavedEvent.from(request, messageSeqId);
                 sendSavedEvent(template, event);
                 return true;
             });
@@ -58,31 +54,6 @@ public class ChatMessagePersistenceConsumer {
         } catch (JsonProcessingException e) {
             throw new RuntimeException("후속 이벤트 직렬화 실패", e);
         }
-    }
-
-    private ChatMessageDocument toDocument(ChatMessageRequestEvent request, Long seqId) {
-        return ChatMessageDocument.builder()
-                .chatRoomCode(request.getChatRoomCode())
-                .senderId(request.getSenderId())
-                .senderName(request.getSenderName())
-                .content(request.getContent())
-                .messageType(request.getMessageType())
-                .createdAt(request.getCreatedAt())
-                .messageSeqId(seqId)
-                .build();
-    }
-
-    private ChatMessageSavedEvent toSavedEvent(ChatMessageRequestEvent request, Long seqId) {
-        return ChatMessageSavedEvent.builder()
-                .chatRoomCode(request.getChatRoomCode())
-                .senderId(request.getSenderId())
-                .senderName(request.getSenderName())
-                .content(request.getContent())
-                .messageType(request.getMessageType())
-                .createdAt(request.getCreatedAt())
-                .sequenceId(seqId)
-                .readBy(List.of(request.getSenderId()))
-                .build();
     }
 
 }

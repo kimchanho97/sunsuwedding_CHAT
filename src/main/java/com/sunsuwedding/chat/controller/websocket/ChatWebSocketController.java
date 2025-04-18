@@ -21,15 +21,6 @@ public class ChatWebSocketController {
 
     @MessageMapping("/chat-rooms/{chatRoomCode}/messages")
     public void send(@DestinationVariable String chatRoomCode, @Payload @Valid ChatMessageRequest message) {
-        chatMessageProducer.send(
-                ChatMessageRequestEvent.builder()
-                        .chatRoomCode(chatRoomCode)
-                        .messageType(message.getMessageType())
-                        .content(message.getContent())
-                        .senderId(message.getSenderId())
-                        .senderName(message.getSenderName())
-                        .createdAt(message.getCreatedAt())
-                        .build()
-        );
+        chatMessageProducer.send(ChatMessageRequestEvent.from(message, chatRoomCode));
     }
 }
