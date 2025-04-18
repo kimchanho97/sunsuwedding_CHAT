@@ -37,7 +37,7 @@ public class ChatMessageRequestEvent {
                 .senderName(this.senderName)
                 .content(this.content)
                 .messageType(this.messageType)
-                .createdAt(this.createdAt)
+                .createdAt(LocalDateTime.now())
                 .messageSeqId(seqId)
                 .build();
     }

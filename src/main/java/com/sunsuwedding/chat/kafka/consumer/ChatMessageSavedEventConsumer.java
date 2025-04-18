@@ -38,7 +38,7 @@ public class ChatMessageSavedEventConsumer {
             ChatMessageSavedEvent savedEvent = objectMapper.readValue(payload, ChatMessageSavedEvent.class);
             String chatRoomCode = savedEvent.getChatRoomCode();
             List<Long> participantUserIds = chatRoomParticipantService.getParticipantUserIds(chatRoomCode);
-            
+
             // 1. 참여자 기준 채팅방 정렬 이벤트 발행
             chatRoomResortBatchEventProducer.send(ChatRoomResortBatchEvent.from(savedEvent, participantUserIds));
 
@@ -46,6 +46,7 @@ public class ChatMessageSavedEventConsumer {
             Map<Long, String> onlineUsers = redisPresenceStore.findOnlineUsersWithServerUrl(chatRoomCode);
             List<Long> onlineUserIds = new ArrayList<>(onlineUsers.keySet());
             onlineUsers.values().stream()
+                    .distinct() // 서버 URL 중복 제거
                     .map(serverUrl -> ChatMessageUnicastEvent.from(savedEvent, serverUrl, onlineUserIds))
                     .forEach(chatMessageUnicastEventProducer::send);
 

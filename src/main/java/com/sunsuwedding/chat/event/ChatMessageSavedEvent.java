@@ -1,5 +1,6 @@
 package com.sunsuwedding.chat.event;
 
+import com.sunsuwedding.chat.domain.ChatMessageDocument;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -12,6 +13,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ChatMessageSavedEvent {
+
+    private String messageId;
     private String chatRoomCode;
     private Long senderId;
     private String senderName;
@@ -20,15 +23,16 @@ public class ChatMessageSavedEvent {
     private LocalDateTime createdAt;
     private Long sequenceId;
 
-    public static ChatMessageSavedEvent from(ChatMessageRequestEvent request, Long seqId) {
+    public static ChatMessageSavedEvent from(ChatMessageDocument document) {
         return ChatMessageSavedEvent.builder()
-                .chatRoomCode(request.getChatRoomCode())
-                .senderId(request.getSenderId())
-                .senderName(request.getSenderName())
-                .content(request.getContent())
-                .messageType(request.getMessageType())
-                .createdAt(request.getCreatedAt())
-                .sequenceId(seqId)
+                .messageId(document.getId())
+                .chatRoomCode(document.getChatRoomCode())
+                .senderId(document.getSenderId())
+                .senderName(document.getSenderName())
+                .content(document.getContent())
+                .messageType(document.getMessageType())
+                .createdAt(document.getCreatedAt())
+                .sequenceId(document.getMessageSeqId())
                 .build();
     }
 }

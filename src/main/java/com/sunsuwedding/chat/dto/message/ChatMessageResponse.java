@@ -15,6 +15,7 @@ import java.util.Map;
 @AllArgsConstructor
 public class ChatMessageResponse {
 
+    private String messageId;
     private Long senderId;
     private String senderName;
     private String content;
@@ -30,6 +31,7 @@ public class ChatMessageResponse {
                 .toList();
 
         return new ChatMessageResponse(
+                doc.getId(),
                 doc.getSenderId(),
                 doc.getSenderName(),
                 doc.getContent(),
@@ -42,6 +44,7 @@ public class ChatMessageResponse {
 
     public static ChatMessageResponse from(ChatMessageSavedEvent event, List<Long> onlineUserIds) {
         return new ChatMessageResponse(
+                event.getMessageId(),
                 event.getSenderId(),
                 event.getSenderName(),
                 event.getContent(),
