@@ -48,4 +48,12 @@ public class KafkaTopicConfig {
                 .build();
     }
 
+    @Bean
+    public NewTopic chatMessageReadSyncTopic() {
+        return TopicBuilder.name("chat-message-read-sync")
+                .partitions(1)
+                .replicas(1)
+                .build();
+    }
+
 }

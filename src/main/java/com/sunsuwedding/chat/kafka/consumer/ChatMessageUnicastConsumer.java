@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 
@@ -25,10 +26,11 @@ public class ChatMessageUnicastConsumer {
     private String currentServerUrl;
 
     @KafkaListener(topics = "chat-message-unicast", groupId = "chat-message-unicast-group")
-    public void consume(String payload) {
+    public void consume(String payload, Acknowledgment ack) {
         try {
             ChatMessageUnicastEvent event = objectMapper.readValue(payload, ChatMessageUnicastEvent.class);
             handleUnicast(event);
+            ack.acknowledge();
         } catch (JsonProcessingException e) {
             log.error("❌ ChatMessageUnicastEvent 역직렬화 실패: {}", payload, e);
         } catch (Exception e) {

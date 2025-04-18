@@ -53,4 +53,9 @@ public class RedisChatReadStore {
         if (value == null) return Optional.empty();
         return Optional.of(Long.valueOf(value));
     }
+
+    public void markMessageAsRead(String chatRoomCode, Long userId, Long sequenceId) {
+        String key = RedisKeyUtil.lastReadSeqKey(chatRoomCode, userId);
+        redisTemplate.opsForValue().set(key, String.valueOf(sequenceId));
+    }
 }

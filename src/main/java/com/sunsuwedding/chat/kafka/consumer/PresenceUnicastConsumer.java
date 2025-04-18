@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 
@@ -26,10 +27,11 @@ public class PresenceUnicastConsumer {
     private String currentServerUrl;
 
     @KafkaListener(topics = "presence-status", groupId = "presence-unicast-group")
-    public void consume(String payload) {
+    public void consume(String payload, Acknowledgment ack) {
         try {
             PresenceStatusEvent event = objectMapper.readValue(payload, PresenceStatusEvent.class);
             handleUnicast(event);
+            ack.acknowledge();
         } catch (JsonProcessingException e) {
             log.error("❌ PresenceStatusEvent 역직렬화 실패: {}", payload, e);
         } catch (Exception e) {
