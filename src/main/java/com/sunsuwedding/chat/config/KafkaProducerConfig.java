@@ -3,9 +3,11 @@ package com.sunsuwedding.chat.config;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
@@ -20,6 +22,31 @@ public class KafkaProducerConfig {
     @Value("${spring.kafka.bootstrap-servers}")
     private String bootstrapServers;
 
+    // 트랜잭션 ProducerFactory
+    @Bean
+    public ProducerFactory<String, String> transactionalProducerFactory() {
+        Map<String, Object> config = new HashMap<>();
+        config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+        config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+        config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+
+        config.put(ProducerConfig.ACKS_CONFIG, "all");
+        config.put(ProducerConfig.RETRIES_CONFIG, 5);
+        config.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, true);
+        config.put(ProducerConfig.TRANSACTIONAL_ID_CONFIG, "chat-tx-id");
+
+        DefaultKafkaProducerFactory<String, String> factory = new DefaultKafkaProducerFactory<>(config);
+        factory.setTransactionIdPrefix("chat-tx-");
+        return factory;
+    }
+
+    // 트랜잭션 KafkaTemplate
+    @Bean
+    @Qualifier("transactionalKafkaTemplate")
+    public KafkaTemplate<String, String> transactionalKafkaTemplate() {
+        return new KafkaTemplate<>(transactionalProducerFactory());
+    }
+
     @Bean
     public ProducerFactory<String, String> producerFactory() {
         Map<String, Object> config = new HashMap<>();
@@ -30,15 +57,12 @@ public class KafkaProducerConfig {
         config.put(ProducerConfig.ACKS_CONFIG, "all");
         config.put(ProducerConfig.RETRIES_CONFIG, 5);
         config.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, true);
-
         return new DefaultKafkaProducerFactory<>(config);
     }
 
     @Bean
+    @Primary
     public KafkaTemplate<String, String> kafkaTemplate() {
-        KafkaTemplate<String, String> kafkaTemplate = new KafkaTemplate<>(producerFactory());
-        kafkaTemplate.setTransactionIdPrefix("chat-tx-"); // Spring이 자동으로 트랜잭션 ID를 생성하도록 prefix 지정
-        return kafkaTemplate;
+        return new KafkaTemplate<>(producerFactory());
     }
-
 }
