@@ -16,27 +16,27 @@ public class PresenceServiceImpl implements PresenceService {
     private final RedisPresenceStore redisPresenceStore;
     private final PresenceStatusProducer presenceStatusProducer;
 
-    @Value("${chat.server-id}")
-    private String currentServerId;
+    @Value("${current.server-url}")
+    private String currentServerUrl;
 
     @Override
     public void handleConnect(Long userId, Long chatPartnerId, String chatRoomCode, String sessionId) {
         // 1. Redis에 본인 상태 저장
         redisPresenceStore.saveSession(sessionId, userId, chatRoomCode, chatPartnerId);
-        redisPresenceStore.savePresence(userId, chatRoomCode, currentServerId);
+        redisPresenceStore.savePresence(userId, chatRoomCode, currentServerUrl);
 
         // 2. 상대방이 online 상태이면 → 내 서버에 알림
         if (redisPresenceStore.isOnline(chatPartnerId, chatRoomCode)) {
             presenceStatusProducer.send(
-                    new PresenceStatusEvent(chatPartnerId, chatRoomCode, "online", currentServerId)
+                    new PresenceStatusEvent(chatPartnerId, chatRoomCode, "online", currentServerUrl)
             );
         }
 
         // 3. 내 상태를 상대방의 서버로 전파
-        String partnerServerId = redisPresenceStore.findPresenceServerId(chatPartnerId, chatRoomCode);
-        if (partnerServerId != null) {
+        String partnerServerUrl = redisPresenceStore.findPresenceServerUrl(chatPartnerId, chatRoomCode);
+        if (partnerServerUrl != null) {
             presenceStatusProducer.send(
-                    new PresenceStatusEvent(userId, chatRoomCode, "online", partnerServerId)
+                    new PresenceStatusEvent(userId, chatRoomCode, "online", partnerServerUrl)
             );
         }
     }
@@ -61,10 +61,10 @@ public class PresenceServiceImpl implements PresenceService {
 
         // 2. 상대방에게 offline 상태 전파
         if (chatPartnerId != null) {
-            String targetServerId = redisPresenceStore.findPresenceServerId(chatPartnerId, chatRoomCode);
-            if (targetServerId != null) {
+            String targetServerUrl = redisPresenceStore.findPresenceServerUrl(chatPartnerId, chatRoomCode);
+            if (targetServerUrl != null) {
                 presenceStatusProducer.send(
-                        new PresenceStatusEvent(userId, chatRoomCode, "offline", targetServerId)
+                        new PresenceStatusEvent(userId, chatRoomCode, "offline", targetServerUrl)
                 );
             }
         }

@@ -11,7 +11,7 @@ public class RedisKeyUtil {
     }
 
     // 유저 접속 서버 ID (유니캐스트 라우팅용)
-    // chat:presence:{chatRoomCode}:{userId} = {serverId}
+    // chat:presence:{chatRoomCode}:{userId} = {serverUrl}
     public static String userPresenceKey(String chatRoomCode, Long userId) {
         return PREFIX + ":presence:" + chatRoomCode + ":" + userId;
     }

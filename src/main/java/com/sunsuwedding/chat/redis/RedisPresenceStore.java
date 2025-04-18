@@ -42,11 +42,11 @@ public class RedisPresenceStore {
         redisTemplate.delete(RedisKeyUtil.sessionKey(sessionId));
     }
 
-    public void savePresence(Long userId, String chatRoomCode, String serverId) {
-        redisTemplate.opsForValue().set(RedisKeyUtil.userPresenceKey(chatRoomCode, userId), serverId, TTL);
+    public void savePresence(Long userId, String chatRoomCode, String serverUrl) {
+        redisTemplate.opsForValue().set(RedisKeyUtil.userPresenceKey(chatRoomCode, userId), serverUrl, TTL);
     }
 
-    public String findPresenceServerId(Long userId, String chatRoomCode) {
+    public String findPresenceServerUrl(Long userId, String chatRoomCode) {
         return redisTemplate.opsForValue().get(RedisKeyUtil.userPresenceKey(chatRoomCode, userId));
     }
 
@@ -64,7 +64,7 @@ public class RedisPresenceStore {
         redisTemplate.expire(RedisKeyUtil.sessionKey(sessionId), TTL);
     }
 
-    public Map<Long, String> findOnlineUsersWithServerId(String chatRoomCode) {
+    public Map<Long, String> findOnlineUsersWithServerUrl(String chatRoomCode) {
         String pattern = "chat:presence:" + chatRoomCode + ":*";
         Set<String> keys = redisTemplate.keys(pattern);
         if (keys.isEmpty()) return Map.of();

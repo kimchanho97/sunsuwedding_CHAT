@@ -29,7 +29,7 @@ public class ChatWebSocketPublisherConsumer {
             String chatRoomCode = savedEvent.getChatRoomCode();
 
             // 1. 접속 중인 유저 → 서버 매핑 (sender 포함)
-            Map<Long, String> onlineUsers = redisPresenceStore.findOnlineUsersWithServerId(chatRoomCode);
+            Map<Long, String> onlineUsers = redisPresenceStore.findOnlineUsersWithServerUrl(chatRoomCode);
 
             // 2. 전송용 DTO 생성
             ChatMessageUnicastDto unicastDto = ChatMessageUnicastDto.from(savedEvent, new ArrayList<>(onlineUsers.keySet()));

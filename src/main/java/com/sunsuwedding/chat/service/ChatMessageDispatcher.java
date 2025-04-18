@@ -18,15 +18,15 @@ public class ChatMessageDispatcher {
     private final SimpMessagingTemplate messagingTemplate;
     private final RemoteMessagePushClient remoteMessagePushClient;
 
-    @Value("${chat.server-id}")
-    private String currentServerId;
+    @Value("${current.server-url}")
+    private String currentServerUrl;
 
     public void dispatch(Map<Long, String> userServerMap, ChatMessageUnicastDto message) {
-        userServerMap.forEach((userId, serverId) -> {
-            if (currentServerId.equals(serverId)) {
+        userServerMap.forEach((userId, serverUrl) -> {
+            if (currentServerUrl.equals(serverUrl)) {
                 sendToLocalWebSocket(userId, message);
             } else {
-                sendToRemoteServer(serverId, userId, message);
+                sendToRemoteServer(serverUrl, userId, message);
             }
         });
     }
@@ -36,8 +36,8 @@ public class ChatMessageDispatcher {
         messagingTemplate.convertAndSend(destination, message);
     }
 
-    private void sendToRemoteServer(String serverId, Long userId, ChatMessageUnicastDto message) {
-        remoteMessagePushClient.sendUnicastMessage(serverId, userId, message);
+    private void sendToRemoteServer(String serverUrl, Long userId, ChatMessageUnicastDto message) {
+        remoteMessagePushClient.sendUnicastMessage(serverUrl, userId, message);
     }
 
 }

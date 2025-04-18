@@ -9,5 +9,5 @@ public class PresenceStatusEvent {
     private Long userId;
     private String chatRoomCode;
     private String status;         // "online"
-    private String targetServerId;
+    private String targetServerUrl;
 }

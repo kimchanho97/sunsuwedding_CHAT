@@ -22,8 +22,8 @@ public class PresenceStatusConsumer {
     private final ObjectMapper objectMapper;
     private final PresencePushClient presencePushClient;
 
-    @Value("${chat.server-id}")
-    private String currentServerId;
+    @Value("${current.server-url}")
+    private String currentServerUrl;
 
     @KafkaListener(topics = "presence-status", groupId = "presence-consumer-group")
     public void consume(String rawMessage) {
@@ -44,10 +44,10 @@ public class PresenceStatusConsumer {
                 event.getStatus()
         );
 
-        if (currentServerId.equals(event.getTargetServerId())) {
+        if (currentServerUrl.equals(event.getTargetServerUrl())) {
             pushToWebSocket(status);
         } else {
-            pushToRemoteServer(event.getTargetServerId(), status);
+            pushToRemoteServer(event.getTargetServerUrl(), status);
         }
     }
 
