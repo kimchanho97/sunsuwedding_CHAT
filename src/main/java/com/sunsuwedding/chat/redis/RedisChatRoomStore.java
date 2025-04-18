@@ -14,12 +14,9 @@ public class RedisChatRoomStore {
 
     private final RedisTemplate<String, String> redisTemplate;
 
-    public void initializeChatRoomEntry(String chatRoomCode, Long userId, Long plannerId) {
-        saveSortedChatRoomReference(userId, chatRoomCode);
-        saveSortedChatRoomReference(plannerId, chatRoomCode);
-
-        initializeLastReadSeq(chatRoomCode, userId);
-        initializeLastReadSeq(chatRoomCode, plannerId);
+    public void addChatRoomToUser(Long userId, String chatRoomCode) {
+        long now = System.currentTimeMillis();
+        redisTemplate.opsForZSet().add(RedisKeyUtil.userChatRoomsKey(userId), chatRoomCode, now);
     }
 
     public boolean isUserInChatRoom(String chatRoomCode, Long userId) {
@@ -27,15 +24,6 @@ public class RedisChatRoomStore {
                 .range(RedisKeyUtil.userChatRoomsKey(userId), 0, -1);
 
         return userRoomCodes != null && userRoomCodes.contains(chatRoomCode);
-    }
-
-    private void saveSortedChatRoomReference(Long userId, String chatRoomCode) {
-        long now = System.currentTimeMillis();
-        redisTemplate.opsForZSet().add(RedisKeyUtil.userChatRoomsKey(userId), chatRoomCode, now);
-    }
-
-    private void initializeLastReadSeq(String chatRoomCode, Long userId) {
-        redisTemplate.opsForValue().set(RedisKeyUtil.lastReadSeqKey(chatRoomCode, userId), "0");
     }
 
     public Long nextMessageSeq(String chatRoomCode) {

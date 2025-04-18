@@ -33,6 +33,10 @@ public class RedisChatReadStore {
         return result;
     }
 
+    public void initializeLastReadSequence(String chatRoomCode, Long userId) {
+        redisTemplate.opsForValue().set(RedisKeyUtil.lastReadSeqKey(chatRoomCode, userId), "0");
+    }
+
     public Optional<Long> getLastReadSequence(String chatRoomCode, Long userId) {
         String key = RedisKeyUtil.lastReadSeqKey(chatRoomCode, userId);
         String value = redisTemplate.opsForValue().get(key);
