@@ -1,6 +1,7 @@
 package com.sunsuwedding.chat.config;
 
 import org.apache.kafka.clients.admin.NewTopic;
+import org.apache.kafka.common.config.TopicConfig;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.config.TopicBuilder;
@@ -8,52 +9,46 @@ import org.springframework.kafka.config.TopicBuilder;
 @Configuration
 public class KafkaTopicConfig {
 
+    private static final int PARTITIONS = 1;
+    private static final int REPLICAS = 1;
+    private static final long RETENTION_MS = 7L * 24 * 60 * 60 * 1000; // 7일
+
+    private NewTopic createTopic(String name) {
+        return TopicBuilder.name(name)
+                .partitions(PARTITIONS)
+                .replicas(REPLICAS)
+                .config(TopicConfig.RETENTION_MS_CONFIG, String.valueOf(RETENTION_MS))
+                .build();
+    }
+
     @Bean
     public NewTopic chatMessageTopic() {
-        return TopicBuilder.name("chat-message")
-                .partitions(1)
-                .replicas(1)
-                .build();
+        return createTopic("chat-message");
     }
 
     @Bean
     public NewTopic presenceStatusTopic() {
-        return TopicBuilder.name("presence-status")
-                .partitions(1)
-                .replicas(1)
-                .build();
+        return createTopic("presence-status");
     }
 
     @Bean
     public NewTopic chatMessageSavedTopic() {
-        return TopicBuilder.name("chat-message-saved")
-                .partitions(1)
-                .replicas(1)
-                .build();
+        return createTopic("chat-message-saved");
     }
 
     @Bean
     public NewTopic chatMessageUnicastTopic() {
-        return TopicBuilder.name("chat-message-unicast")
-                .partitions(1)
-                .replicas(1)
-                .build();
+        return createTopic("chat-message-unicast");
     }
 
     @Bean
-    public NewTopic chatMessageUnicastResponseTopic() {
-        return TopicBuilder.name("chat-room-resort")
-                .partitions(1)
-                .replicas(1)
-                .build();
+    public NewTopic chatRoomResortTopic() {
+        return createTopic("chat-room-resort");
     }
 
     @Bean
     public NewTopic chatMessageReadSyncTopic() {
-        return TopicBuilder.name("chat-message-read-sync")
-                .partitions(1)
-                .replicas(1)
-                .build();
+        return createTopic("chat-message-read-sync");
     }
 
 }
