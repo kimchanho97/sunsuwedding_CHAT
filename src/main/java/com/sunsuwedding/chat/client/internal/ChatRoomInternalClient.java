@@ -2,10 +2,7 @@ package com.sunsuwedding.chat.client.internal;
 
 import com.sunsuwedding.chat.common.exception.ChatErrorCode;
 import com.sunsuwedding.chat.common.exception.CustomException;
-import com.sunsuwedding.chat.dto.room.ChatRoomCreateRequest;
-import com.sunsuwedding.chat.dto.room.ChatRoomCreateResponse;
-import com.sunsuwedding.chat.dto.room.ChatRoomParticipantsDto;
-import com.sunsuwedding.chat.dto.room.ChatRoomValidationRequest;
+import com.sunsuwedding.chat.dto.room.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -53,7 +50,24 @@ public class ChatRoomInternalClient {
                     .map(ChatRoomParticipantsDto::getParticipantUserIds)
                     .orElse(List.of());
         } catch (Exception e) {
-            throw new RuntimeException("❌ 채팅방 참여자 목록 조회 실패: chatRoomCode=" + chatRoomCode, e);
+            throw new CustomException(ChatErrorCode.CHAT_ROOM_PARTICIPANTS_FETCH_FAILED);
+        }
+    }
+
+    public List<ChatRoomPartnerProfileResponse> getPartnerProfiles(List<String> chatRoomCodes, Long userId) {
+        String url = baseUrl + CHAT_ROOM_PATH + "/partners";
+        ChatRoomPartnerProfileRequest request = new ChatRoomPartnerProfileRequest(userId, chatRoomCodes);
+
+        try {
+            ChatRoomPartnerProfileResponse[] response = restTemplate.postForObject(
+                    url,
+                    request,
+                    ChatRoomPartnerProfileResponse[].class
+            );
+
+            return response != null ? List.of(response) : List.of();
+        } catch (RestClientException e) {
+            throw new CustomException(ChatErrorCode.CHAT_ROOM_PARTNER_FETCH_FAILED);
         }
     }
 

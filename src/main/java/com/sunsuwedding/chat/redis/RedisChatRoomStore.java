@@ -1,10 +1,12 @@
 package com.sunsuwedding.chat.redis;
 
+import com.sunsuwedding.chat.model.ChatRoomMeta;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -59,6 +61,40 @@ public class RedisChatRoomStore {
         String key = RedisKeyUtil.chatRoomMembersKey(chatRoomCode);
         String[] userIdStrings = userIds.stream().map(String::valueOf).toArray(String[]::new);
         redisTemplate.opsForSet().add(key, userIdStrings);
+    }
+
+    public long countChatRooms(Long userId) {
+        return redisTemplate.opsForZSet().size(RedisKeyUtil.userChatRoomsKey(userId));
+    }
+
+    public List<String> getSortedChatRoomCodes(Long userId, int size) {
+        String key = RedisKeyUtil.userChatRoomsKey(userId);
+        return redisTemplate.opsForZSet()
+                .reverseRange(key, 0, size - 1)
+                .stream().toList();
+    }
+
+    public Map<String, ChatRoomMeta> getChatRoomMetas(List<String> chatRoomCodes) {
+        Map<String, ChatRoomMeta> result = new HashMap<>();
+
+        for (String code : chatRoomCodes) {
+            String key = RedisKeyUtil.chatRoomMetaKey(code);
+            Map<Object, Object> rawMeta = redisTemplate.opsForHash().entries(key);
+
+            if (!rawMeta.isEmpty()) {
+                String lastMessage = (String) rawMeta.getOrDefault("lastMessage", "");
+                String lastMessageAtStr = (String) rawMeta.getOrDefault("lastMessageAt", null);
+                String lastMessageSeqIdStr = (String) rawMeta.getOrDefault("lastMessageSeqId", "0");
+
+                LocalDateTime lastMessageAt = lastMessageAtStr != null
+                        ? LocalDateTime.parse(lastMessageAtStr)
+                        : LocalDateTime.MIN;
+
+                ChatRoomMeta meta = new ChatRoomMeta(lastMessage, lastMessageAt, Long.parseLong(lastMessageSeqIdStr));
+                result.put(code, meta);
+            }
+        }
+        return result;
     }
 
 }

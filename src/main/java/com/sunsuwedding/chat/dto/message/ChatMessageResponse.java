@@ -1,7 +1,7 @@
 package com.sunsuwedding.chat.dto.message;
 
-import com.sunsuwedding.chat.domain.ChatMessageDocument;
 import com.sunsuwedding.chat.event.ChatMessageSavedEvent;
+import com.sunsuwedding.chat.model.ChatMessageDocument;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

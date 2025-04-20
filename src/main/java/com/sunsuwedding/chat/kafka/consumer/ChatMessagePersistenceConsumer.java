@@ -1,10 +1,10 @@
 package com.sunsuwedding.chat.kafka.consumer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sunsuwedding.chat.domain.ChatMessageDocument;
 import com.sunsuwedding.chat.event.ChatMessageRequestEvent;
 import com.sunsuwedding.chat.event.ChatMessageSavedEvent;
 import com.sunsuwedding.chat.kafka.producer.ChatMessageSavedEventProducer;
+import com.sunsuwedding.chat.model.ChatMessageDocument;
 import com.sunsuwedding.chat.redis.RedisChatRoomStore;
 import com.sunsuwedding.chat.repository.ChatMessageMongoRepository;
 import lombok.extern.slf4j.Slf4j;

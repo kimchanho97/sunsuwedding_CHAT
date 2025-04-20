@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -47,15 +46,26 @@ public class RedisChatReadStore {
         redisTemplate.opsForValue().set(RedisKeyUtil.lastReadSeqKey(chatRoomCode, userId), "0");
     }
 
-    public Optional<Long> getLastReadSequence(String chatRoomCode, Long userId) {
-        String key = RedisKeyUtil.lastReadSeqKey(chatRoomCode, userId);
-        String value = redisTemplate.opsForValue().get(key);
-        if (value == null) return Optional.empty();
-        return Optional.of(Long.valueOf(value));
-    }
-
     public void markMessageAsRead(String chatRoomCode, Long userId, Long sequenceId) {
         String key = RedisKeyUtil.lastReadSeqKey(chatRoomCode, userId);
         redisTemplate.opsForValue().set(key, String.valueOf(sequenceId));
     }
+
+    public Map<String, Long> getLastReadSequences(List<String> chatRoomCodes, Long userId) {
+        Map<String, Long> result = new HashMap<>();
+        List<String> keys = chatRoomCodes.stream()
+                .map(code -> RedisKeyUtil.lastReadSeqKey(code, userId))
+                .toList();
+
+        List<String> values = redisTemplate.opsForValue().multiGet(keys);
+
+        for (int i = 0; i < chatRoomCodes.size(); i++) {
+            String value = values.get(i);
+            if (value != null) {
+                result.put(chatRoomCodes.get(i), Long.parseLong(value));
+            }
+        }
+        return result;
+    }
+
 }

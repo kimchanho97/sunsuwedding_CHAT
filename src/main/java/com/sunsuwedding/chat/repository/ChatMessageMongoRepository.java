@@ -1,6 +1,6 @@
 package com.sunsuwedding.chat.repository;
 
-import com.sunsuwedding.chat.domain.ChatMessageDocument;
+import com.sunsuwedding.chat.model.ChatMessageDocument;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.mongodb.repository.MongoRepository;

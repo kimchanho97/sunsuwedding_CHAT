@@ -1,6 +1,6 @@
 package com.sunsuwedding.chat.event;
 
-import com.sunsuwedding.chat.domain.ChatMessageDocument;
+import com.sunsuwedding.chat.model.ChatMessageDocument;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

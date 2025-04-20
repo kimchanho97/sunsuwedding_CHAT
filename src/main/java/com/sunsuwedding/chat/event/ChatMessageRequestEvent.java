@@ -1,6 +1,6 @@
 package com.sunsuwedding.chat.event;
 
-import com.sunsuwedding.chat.domain.ChatMessageDocument;
+import com.sunsuwedding.chat.model.ChatMessageDocument;
 import com.sunsuwedding.chat.dto.message.ChatMessageRequest;
 import com.sunsuwedding.chat.dto.message.S3UploadResultDto;
 import lombok.AllArgsConstructor;

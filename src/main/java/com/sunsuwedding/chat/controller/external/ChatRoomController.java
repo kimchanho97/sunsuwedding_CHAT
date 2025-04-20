@@ -1,17 +1,12 @@
 package com.sunsuwedding.chat.controller.external;
 
 import com.sunsuwedding.chat.common.response.ApiResponse;
-import com.sunsuwedding.chat.dto.room.ChatRoomCreateRequest;
-import com.sunsuwedding.chat.dto.room.ChatRoomCreateResponse;
-import com.sunsuwedding.chat.dto.room.ChatRoomValidationRequest;
-import com.sunsuwedding.chat.dto.room.ChatRoomValidationResponse;
+import com.sunsuwedding.chat.common.response.PaginationResponse;
+import com.sunsuwedding.chat.dto.room.*;
 import com.sunsuwedding.chat.service.ChatRoomService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -30,4 +25,13 @@ public class ChatRoomController {
         boolean isValid = chatRoomService.validateChatRoom(request);
         return ApiResponse.success(new ChatRoomValidationResponse(isValid));
     }
+
+    @GetMapping
+    public PaginationResponse<ChatRoomSummaryResponse> getChatRooms(
+            @RequestParam Long userId,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        return chatRoomService.getChatRooms(userId, size);
+    }
+
 }

@@ -2,12 +2,12 @@ package com.sunsuwedding.chat.service;
 
 import com.sunsuwedding.chat.client.internal.ChatImageUploadClient;
 import com.sunsuwedding.chat.common.response.PaginationResponse;
-import com.sunsuwedding.chat.domain.ChatMessageDocument;
 import com.sunsuwedding.chat.dto.message.ChatMessageRequest;
 import com.sunsuwedding.chat.dto.message.ChatMessageResponse;
 import com.sunsuwedding.chat.dto.message.S3UploadResultDto;
 import com.sunsuwedding.chat.event.ChatMessageRequestEvent;
 import com.sunsuwedding.chat.kafka.producer.ChatMessageProducer;
+import com.sunsuwedding.chat.model.ChatMessageDocument;
 import com.sunsuwedding.chat.redis.RedisChatReadStore;
 import com.sunsuwedding.chat.repository.ChatMessageMongoRepository;
 import lombok.RequiredArgsConstructor;

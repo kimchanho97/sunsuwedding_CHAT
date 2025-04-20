@@ -1,13 +1,18 @@
 package com.sunsuwedding.chat.service;
 
 import com.sunsuwedding.chat.client.internal.ChatRoomInternalClient;
-import com.sunsuwedding.chat.dto.room.ChatRoomCreateRequest;
-import com.sunsuwedding.chat.dto.room.ChatRoomCreateResponse;
-import com.sunsuwedding.chat.dto.room.ChatRoomValidationRequest;
+import com.sunsuwedding.chat.common.response.PaginationResponse;
+import com.sunsuwedding.chat.dto.room.*;
+import com.sunsuwedding.chat.model.ChatRoomMeta;
 import com.sunsuwedding.chat.redis.RedisChatReadStore;
 import com.sunsuwedding.chat.redis.RedisChatRoomStore;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -39,4 +44,51 @@ public class ChatRoomService {
         }
         return chatRoomInternalClient.validateChatRoom(request);
     }
+
+    public PaginationResponse<ChatRoomSummaryResponse> getChatRooms(Long userId, int size) {
+        // 1. 채팅방 목록, 메타, 상대방 정보, 읽은 시퀀스 조회
+        List<String> chatRoomCodes = redisChatRoomStore.getSortedChatRoomCodes(userId, size);
+        long totalCount = redisChatRoomStore.countChatRooms(userId);
+        Map<String, ChatRoomMeta> chatRoomMetas = redisChatRoomStore.getChatRoomMetas(chatRoomCodes);
+        Map<String, ChatRoomPartnerProfileResponse> partnerProfileMap = getPartnerProfileMap(chatRoomCodes, userId);
+        Map<String, Long> lastReadSeqMap = redisChatReadStore.getLastReadSequences(chatRoomCodes, userId);
+
+        // 2. 응답 조립
+        List<ChatRoomSummaryResponse> responseList = buildSummaryResponses(chatRoomCodes, chatRoomMetas, partnerProfileMap, lastReadSeqMap);
+
+        boolean hasNext = size < totalCount;
+        return new PaginationResponse<>(responseList, hasNext);
+    }
+
+    private Map<String, ChatRoomPartnerProfileResponse> getPartnerProfileMap(List<String> chatRoomCodes, Long userId) {
+        return chatRoomInternalClient.getPartnerProfiles(chatRoomCodes, userId).stream()
+                .collect(Collectors.toMap(ChatRoomPartnerProfileResponse::chatRoomCode, Function.identity()));
+    }
+
+    private List<ChatRoomSummaryResponse> buildSummaryResponses(
+            List<String> chatRoomCodes,
+            Map<String, ChatRoomMeta> chatRoomMetas,
+            Map<String, ChatRoomPartnerProfileResponse> partnerProfileMap,
+            Map<String, Long> lastReadSeqMap
+    ) {
+        return chatRoomCodes.stream()
+                .map(code -> {
+                    ChatRoomMeta meta = chatRoomMetas.get(code);
+                    ChatRoomPartnerProfileResponse partner = partnerProfileMap.get(code);
+                    Long readSeq = lastReadSeqMap.get(code);
+                    int unread = (readSeq == null) ? 0 : (int) (meta.lastMessageSeqId() - readSeq);
+
+                    return new ChatRoomSummaryResponse(
+                            code,
+                            partner.partnerUserId(),
+                            partner.partnerName(),
+                            partner.avatarUrl(),
+                            meta.lastMessage(),
+                            meta.lastMessageAt(),
+                            Math.max(unread, 0)
+                    );
+                })
+                .toList();
+    }
+
 }
