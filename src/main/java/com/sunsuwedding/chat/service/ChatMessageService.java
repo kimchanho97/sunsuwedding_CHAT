@@ -8,7 +8,6 @@ import com.sunsuwedding.chat.dto.message.S3UploadResultDto;
 import com.sunsuwedding.chat.event.ChatMessageRequestEvent;
 import com.sunsuwedding.chat.kafka.producer.ChatMessageProducer;
 import com.sunsuwedding.chat.model.ChatMessageDocument;
-import com.sunsuwedding.chat.redis.RedisChatReadStore;
 import com.sunsuwedding.chat.repository.ChatMessageMongoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -24,18 +23,16 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class ChatMessageService {
 
-    private final ChatMessageMongoRepository repository;
-    private final RedisChatReadStore redisChatReadStore;
-    private final ChatRoomParticipantService chatRoomParticipantService;
+    private final ChatMessageMongoRepository mongoRepository;
     private final ChatImageUploadClient chatImageUploadClient;
     private final ChatMessageProducer chatMessageProducer;
+    private final ChatMessageReadService chatMessageReadService;
 
     public PaginationResponse<ChatMessageResponse> getMessages(String chatRoomCode, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        Slice<ChatMessageDocument> slice = repository.findByChatRoomCodeOrderByCreatedAtDesc(chatRoomCode, pageable);
+        Slice<ChatMessageDocument> slice = mongoRepository.findByChatRoomCodeOrderByCreatedAtDesc(chatRoomCode, pageable);
 
-        List<Long> participantIds = chatRoomParticipantService.getParticipantUserIds(chatRoomCode);
-        Map<Long, Long> userReadSeqMap = redisChatReadStore.getUserReadSequences(chatRoomCode, participantIds);
+        Map<Long, Long> userReadSeqMap = chatMessageReadService.getUserReadSequences(chatRoomCode);
 
         List<ChatMessageResponse> responses = slice.getContent().stream()
                 .map(doc -> ChatMessageResponse.from(doc, userReadSeqMap))
