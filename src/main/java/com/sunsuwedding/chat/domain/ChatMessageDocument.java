@@ -25,4 +25,8 @@ public class ChatMessageDocument {
     private String messageType; // TEXT, IMAGE
     private LocalDateTime createdAt;
     private Long messageSeqId; // 메시지 시퀀스 ID
+
+    // 이미지 메시지인 경우
+    private String fileName;
+    private String fileUrl;
 }

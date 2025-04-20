@@ -24,6 +24,9 @@ public class ChatMessageResponse {
     private Long sequenceId;
     private List<Long> readBy;
 
+    // 이미지 메시지인 경우
+    private String fileUrl;
+
     public static ChatMessageResponse from(ChatMessageDocument doc, Map<Long, Long> userReadSeqMap) {
         List<Long> readBy = userReadSeqMap.entrySet().stream()
                 .filter(entry -> entry.getValue() >= doc.getMessageSeqId())
@@ -38,7 +41,8 @@ public class ChatMessageResponse {
                 doc.getMessageType(),
                 doc.getCreatedAt(),
                 doc.getMessageSeqId(),
-                readBy
+                readBy,
+                doc.getFileUrl()
         );
     }
 
@@ -51,7 +55,8 @@ public class ChatMessageResponse {
                 event.getMessageType(),
                 event.getCreatedAt(),
                 event.getSequenceId(),
-                onlineUserIds
+                onlineUserIds,
+                event.getFileUrl()
         );
     }
 

@@ -19,7 +19,7 @@ public class ChatWebSocketController {
 
     private final ChatMessageProducer chatMessageProducer;
 
-    @MessageMapping("/chat-rooms/{chatRoomCode}/messages")
+    @MessageMapping("/chat/rooms/{chatRoomCode}/messages")
     public void send(@DestinationVariable String chatRoomCode, @Payload @Valid ChatMessageRequest message) {
         chatMessageProducer.send(ChatMessageRequestEvent.from(message, chatRoomCode));
     }

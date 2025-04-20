@@ -50,7 +50,7 @@ public class ChatMessageUnicastConsumer {
     }
 
     private void sendToWebSocket(String chatRoomCode, ChatMessageResponse message) {
-        String destination = "/topic/chat-rooms/" + chatRoomCode;
+        String destination = "/topic/chat/rooms/" + chatRoomCode;
         messagingTemplate.convertAndSend(destination, message);
     }
 

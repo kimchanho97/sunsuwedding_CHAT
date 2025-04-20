@@ -18,7 +18,7 @@ public class ChatMessageInternalController {
     @PostMapping("/unicast/{chatRoomCode}")
     public ResponseEntity<Void> broadcastToChatRoom(@PathVariable String chatRoomCode,
                                                     @RequestBody ChatMessageResponse message) {
-        String destination = "/topic/chat-rooms/" + chatRoomCode;
+        String destination = "/topic/chat/rooms/" + chatRoomCode;
         messagingTemplate.convertAndSend(destination, message);
         return ResponseEntity.ok().build();
     }

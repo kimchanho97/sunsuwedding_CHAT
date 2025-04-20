@@ -21,7 +21,7 @@ public class ChatRoomInternalClient {
 
     private final RestTemplate restTemplate;
 
-    private final static String CHAT_ROOM_PATH = "/internal/chat-rooms";
+    private final static String CHAT_ROOM_PATH = "/internal/chat/rooms";
 
     @Value("${backend.api.base-url}")
     private String baseUrl;
@@ -46,7 +46,7 @@ public class ChatRoomInternalClient {
     }
 
     public List<Long> getParticipantUserIds(String chatRoomCode) {
-        String url = baseUrl + "/internal/chat-rooms/" + chatRoomCode + "/participants";
+        String url = baseUrl + "/internal/chat/rooms/" + chatRoomCode + "/participants";
         try {
             ChatRoomParticipantsDto response = restTemplate.getForObject(url, ChatRoomParticipantsDto.class);
             return Optional.ofNullable(response)
