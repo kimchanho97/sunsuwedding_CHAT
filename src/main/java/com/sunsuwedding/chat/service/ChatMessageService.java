@@ -26,13 +26,13 @@ public class ChatMessageService {
     private final ChatMessageMongoRepository mongoRepository;
     private final ChatImageUploadClient chatImageUploadClient;
     private final ChatMessageProducer chatMessageProducer;
-    private final ChatMessageReadService chatMessageReadService;
+    private final ChatMessageReadQueryService chatMessageReadQueryService;
 
     public PaginationResponse<ChatMessageResponse> getMessages(String chatRoomCode, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         Slice<ChatMessageDocument> slice = mongoRepository.findByChatRoomCodeOrderByCreatedAtDesc(chatRoomCode, pageable);
 
-        Map<Long, Long> userReadSeqMap = chatMessageReadService.getUserReadSequences(chatRoomCode);
+        Map<Long, Long> userReadSeqMap = chatMessageReadQueryService.getUserReadSequences(chatRoomCode);
 
         List<ChatMessageResponse> responses = slice.getContent().stream()
                 .map(doc -> ChatMessageResponse.from(doc, userReadSeqMap))

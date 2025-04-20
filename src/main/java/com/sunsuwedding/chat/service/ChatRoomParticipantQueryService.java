@@ -10,7 +10,7 @@ import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
-public class ChatRoomParticipantService {
+public class ChatRoomParticipantQueryService {
 
     private final ChatRoomInternalClient chatRoomInternalClient;
     private final RedisChatRoomStore redisChatRoomStore;

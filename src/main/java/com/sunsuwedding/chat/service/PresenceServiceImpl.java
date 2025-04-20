@@ -18,7 +18,7 @@ public class PresenceServiceImpl implements PresenceService {
 
     private final RedisPresenceStore redisPresenceStore;
     private final PresenceUnicastProducer presenceUnicastProducer;
-    private final ChatRoomParticipantService chatRoomParticipantService;
+    private final ChatRoomParticipantQueryService chatRoomParticipantQueryService;
     private final RedisChatReadStore redisChatReadStore;
 
     @Value("${current.server-url}")
@@ -34,7 +34,7 @@ public class PresenceServiceImpl implements PresenceService {
         redisChatReadStore.markAllMessagesAsRead(chatRoomCode, userId);
 
         // 3. 채팅방 참여자 조회
-        List<Long> participantUserIds = chatRoomParticipantService.getParticipantUserIds(chatRoomCode);
+        List<Long> participantUserIds = chatRoomParticipantQueryService.getParticipantUserIds(chatRoomCode);
         for (Long otherUserId : participantUserIds) {
             if (otherUserId.equals(userId)) continue;
 
@@ -72,7 +72,7 @@ public class PresenceServiceImpl implements PresenceService {
         redisPresenceStore.removePresence(userId, chatRoomCode);
 
         // 2. 온라인 유저들에게 offline 상태 전파
-        List<Long> participantUserIds = chatRoomParticipantService.getParticipantUserIds(chatRoomCode);
+        List<Long> participantUserIds = chatRoomParticipantQueryService.getParticipantUserIds(chatRoomCode);
         for (Long otherUserId : participantUserIds) {
             if (otherUserId.equals(userId)) continue;
 

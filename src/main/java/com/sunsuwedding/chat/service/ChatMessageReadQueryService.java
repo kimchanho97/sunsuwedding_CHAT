@@ -10,15 +10,15 @@ import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
-public class ChatMessageReadService {
+public class ChatMessageReadQueryService {
 
     private final RedisChatReadStore redisChatReadStore;
-    private final ChatRoomParticipantService chatRoomParticipantService;
+    private final ChatRoomParticipantQueryService chatRoomParticipantQueryService;
     private final ChatMessageReadClient chatMessageReadClient;
 
     public Map<Long, Long> getUserReadSequences(String chatRoomCode) {
         // 1. Redis에서 먼저 조회
-        List<Long> participantIds = chatRoomParticipantService.getParticipantUserIds(chatRoomCode);
+        List<Long> participantIds = chatRoomParticipantQueryService.getParticipantUserIds(chatRoomCode);
         Map<Long, Long> readMap = redisChatReadStore.getUserReadSequences(chatRoomCode, participantIds);
         if (!readMap.isEmpty()) {
             return readMap;

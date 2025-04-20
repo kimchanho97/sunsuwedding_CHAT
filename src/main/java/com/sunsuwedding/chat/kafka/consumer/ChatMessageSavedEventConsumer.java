@@ -9,7 +9,7 @@ import com.sunsuwedding.chat.kafka.producer.ChatMessageReadSyncBatchEventProduce
 import com.sunsuwedding.chat.kafka.producer.ChatMessageUnicastEventProducer;
 import com.sunsuwedding.chat.kafka.producer.ChatRoomResortBatchEventProducer;
 import com.sunsuwedding.chat.redis.RedisPresenceStore;
-import com.sunsuwedding.chat.service.ChatRoomParticipantService;
+import com.sunsuwedding.chat.service.ChatRoomParticipantQueryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -27,7 +27,7 @@ public class ChatMessageSavedEventConsumer {
 
     private final ObjectMapper objectMapper;
     private final RedisPresenceStore redisPresenceStore;
-    private final ChatRoomParticipantService chatRoomParticipantService;
+    private final ChatRoomParticipantQueryService chatRoomParticipantQueryService;
     private final ChatRoomResortBatchEventProducer chatRoomResortBatchEventProducer;
     private final ChatMessageUnicastEventProducer chatMessageUnicastEventProducer;
     private final ChatMessageReadSyncBatchEventProducer chatMessageReadSyncBatchEventProducer;
@@ -37,7 +37,7 @@ public class ChatMessageSavedEventConsumer {
         try {
             ChatMessageSavedEvent savedEvent = objectMapper.readValue(payload, ChatMessageSavedEvent.class);
             String chatRoomCode = savedEvent.getChatRoomCode();
-            List<Long> participantUserIds = chatRoomParticipantService.getParticipantUserIds(chatRoomCode);
+            List<Long> participantUserIds = chatRoomParticipantQueryService.getParticipantUserIds(chatRoomCode);
 
             // 1. 참여자 기준 채팅방 정렬 이벤트 발행
             chatRoomResortBatchEventProducer.send(ChatRoomResortBatchEvent.from(savedEvent, participantUserIds));
