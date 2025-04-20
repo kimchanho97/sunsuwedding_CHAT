@@ -7,4 +7,8 @@ public record ChatRoomMeta(
         LocalDateTime lastMessageAt,
         Long lastMessageSeqId
 ) {
+    public static ChatRoomMeta empty() {
+        return new ChatRoomMeta("", LocalDateTime.MIN, 0L);
+    }
+
 }

@@ -94,6 +94,11 @@ public class RedisChatRoomStore {
                 result.put(code, meta);
             }
         }
+
+        // 처음 생성된 채팅방 코드에 대해 default 메타 생성
+        for (String code : chatRoomCodes) {
+            result.putIfAbsent(code, ChatRoomMeta.empty());
+        }
         return result;
     }
 
