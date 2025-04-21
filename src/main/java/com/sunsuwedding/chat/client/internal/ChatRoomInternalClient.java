@@ -62,14 +62,13 @@ public class ChatRoomInternalClient {
     public List<ChatRoomPartnerProfileResponse> getPartnerProfiles(List<String> chatRoomCodes, Long userId) {
         String url = baseUrl + CHAT_ROOM_PATH + "/partners";
         ChatRoomPartnerProfileRequest request = new ChatRoomPartnerProfileRequest(userId, chatRoomCodes);
-
         try {
             ChatRoomPartnerProfileResponse[] response = restTemplate.postForObject(
                     url,
                     request,
                     ChatRoomPartnerProfileResponse[].class
             );
-
+            
             return response != null ? List.of(response) : List.of();
         } catch (RestClientException e) {
             throw new CustomException(CHAT_ROOM_PARTNER_FETCH_FAILED);
@@ -78,7 +77,6 @@ public class ChatRoomInternalClient {
 
     public List<String> getSortedChatRoomCodes(Long userId, int size) {
         String url = baseUrl + CHAT_ROOM_PATH + "/sorted?userId=" + userId + "&size=" + size;
-
         try {
             ParameterizedTypeReference<List<String>> responseType = new ParameterizedTypeReference<>() {
             };
@@ -91,7 +89,6 @@ public class ChatRoomInternalClient {
 
     public long countChatRooms(Long userId) {
         String url = baseUrl + CHAT_ROOM_PATH + "/count?userId=" + userId;
-
         try {
             ResponseEntity<Long> response = restTemplate.getForEntity(url, Long.class);
             return response.getBody() != null ? response.getBody() : 0L;
@@ -102,7 +99,6 @@ public class ChatRoomInternalClient {
 
     public Map<String, ChatRoomMeta> getChatRoomMetas(List<String> chatRoomCodes) {
         String url = baseUrl + CHAT_ROOM_PATH + "/meta";
-
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
@@ -121,7 +117,6 @@ public class ChatRoomInternalClient {
 
     public Map<String, Long> getReadSequencesByChatRoomsForUser(List<String> chatRoomCodes, Long userId) {
         String url = baseUrl + CHAT_ROOM_PATH + "/last-read-sequences";
-
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
@@ -135,6 +130,7 @@ public class ChatRoomInternalClient {
             ParameterizedTypeReference<Map<String, Long>> responseType = new ParameterizedTypeReference<>() {
             };
             ResponseEntity<Map<String, Long>> response = restTemplate.exchange(url, HttpMethod.POST, requestEntity, responseType);
+
             return response.getBody() != null ? response.getBody() : Map.of();
         } catch (Exception e) {
             throw new CustomException(LAST_READ_SEQUENCE_FETCH_FAILED);

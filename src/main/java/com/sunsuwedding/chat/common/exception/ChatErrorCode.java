@@ -18,6 +18,8 @@ public enum ChatErrorCode implements ErrorCode {
     CHAT_ROOM_COUNT_FETCH_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "채팅방 개수 조회에 실패했습니다."),
     CHAT_ROOM_META_FETCH_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "채팅방 메타 정보 조회에 실패했습니다."),
     LAST_READ_SEQUENCE_FETCH_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "마지막 읽기 시퀀스 조회에 실패했습니다."),
+    CHAT_ROOM_META_SYNC_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "채팅방 메타 정보 동기화에 실패했습니다."),
+    LAST_READ_SYNC_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "마지막 읽기 시퀀스 동기화에 실패했습니다."),
 
     // 이미지 업로드 관련 에러
     IMAGE_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "이미지 업로드에 실패했습니다."),

@@ -6,10 +6,8 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -111,8 +109,25 @@ public class RedisChatRoomStore {
 
     public void markChatRoomMetaAsDirty(String chatRoomCode) {
         String dirtyKey = RedisKeyUtil.dirtyChatRoomMetaKey(); // dirty:chat:room:meta
-        String actualMetaKey = RedisKeyUtil.chatRoomMetaKey(chatRoomCode); // chat:room:meta:{chatRoomCode}
-        redisTemplate.opsForSet().add(dirtyKey, actualMetaKey);
+        redisTemplate.opsForSet().add(dirtyKey, chatRoomCode);
+    }
+
+    public Set<String> getDirtyChatRoomMetaCodes() {
+        return redisTemplate.opsForSet().members(RedisKeyUtil.dirtyChatRoomMetaKey());
+    }
+
+    public Map<String, String> getChatRoomMeta(String chatRoomCode) {
+        String key = RedisKeyUtil.chatRoomMetaKey(chatRoomCode);
+        Map<Object, Object> raw = redisTemplate.opsForHash().entries(key);
+        return raw.entrySet().stream()
+                .collect(Collectors.toMap(
+                        e -> e.getKey().toString(),
+                        e -> e.getValue() != null ? e.getValue().toString() : ""
+                ));
+    }
+
+    public void removeDirtyChatRoomMetaCodes(Collection<String> chatRoomCodes) {
+        redisTemplate.opsForSet().remove(RedisKeyUtil.dirtyChatRoomMetaKey(), chatRoomCodes.toArray(new Object[0]));
     }
 
 }

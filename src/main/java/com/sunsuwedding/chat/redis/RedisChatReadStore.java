@@ -1,5 +1,6 @@
 package com.sunsuwedding.chat.redis;
 
+import com.sunsuwedding.chat.dto.sync.ChatReadSeqSyncRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -7,6 +8,7 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -78,8 +80,24 @@ public class RedisChatReadStore {
 
     public void markLastReadSequenceAsDirty(String chatRoomCode, Long userId) {
         String dirtyKey = RedisKeyUtil.dirtyLastReadSeqKey(); // dirty:chat:room:last-read
-        String actualKey = RedisKeyUtil.lastReadSeqKey(chatRoomCode, userId); // chat:room:last-read:{chatRoomCode}:{userId}
-        redisTemplate.opsForSet().add(dirtyKey, actualKey);
+        String member = chatRoomCode + ":" + userId;
+        redisTemplate.opsForSet().add(dirtyKey, member);
+    }
+
+    public Set<String> getDirtyLastReadKeys() {
+        return redisTemplate.opsForSet().members(RedisKeyUtil.dirtyLastReadSeqKey());
+    }
+
+    public Long getLastReadSequence(String chatRoomCode, Long userId) {
+        String value = redisTemplate.opsForValue().get(RedisKeyUtil.lastReadSeqKey(chatRoomCode, userId));
+        return value != null ? Long.parseLong(value) : 0L;
+    }
+
+    public void removeDirtyLastReadKeys(List<ChatReadSeqSyncRequest> requests) {
+        String[] keysToRemove = requests.stream()
+                .map(req -> req.chatRoomCode() + ":" + req.userId())
+                .toArray(String[]::new);
+        redisTemplate.opsForSet().remove(RedisKeyUtil.dirtyLastReadSeqKey(), (Object[]) keysToRemove);
     }
 
 }
