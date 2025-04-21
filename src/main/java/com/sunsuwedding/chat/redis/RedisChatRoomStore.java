@@ -109,4 +109,10 @@ public class RedisChatRoomStore {
         return Boolean.TRUE.equals(redisTemplate.hasKey(key));
     }
 
+    public void markChatRoomMetaAsDirty(String chatRoomCode) {
+        String dirtyKey = RedisKeyUtil.dirtyChatRoomMetaKey(); // dirty:chat:room:meta
+        String actualMetaKey = RedisKeyUtil.chatRoomMetaKey(chatRoomCode); // chat:room:meta:{chatRoomCode}
+        redisTemplate.opsForSet().add(dirtyKey, actualMetaKey);
+    }
+
 }

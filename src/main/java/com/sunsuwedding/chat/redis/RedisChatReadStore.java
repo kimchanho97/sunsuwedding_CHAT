@@ -22,6 +22,9 @@ public class RedisChatReadStore {
 
         String readKey = RedisKeyUtil.lastReadSeqKey(chatRoomCode, userId);
         redisTemplate.opsForValue().set(readKey, String.valueOf(lastSeq));
+
+        // dirty 저장소에 추가
+        markLastReadSequenceAsDirty(chatRoomCode, userId);
     }
 
     public Map<Long, Long> getReadSequencesByUserInChatRoom(String chatRoomCode, List<Long> userIds) {
@@ -71,6 +74,12 @@ public class RedisChatReadStore {
             }
         }
         return result;
+    }
+
+    public void markLastReadSequenceAsDirty(String chatRoomCode, Long userId) {
+        String dirtyKey = RedisKeyUtil.dirtyLastReadSeqKey(); // dirty:chat:room:last-read
+        String actualKey = RedisKeyUtil.lastReadSeqKey(chatRoomCode, userId); // chat:room:last-read:{chatRoomCode}:{userId}
+        redisTemplate.opsForSet().add(dirtyKey, actualKey);
     }
 
 }

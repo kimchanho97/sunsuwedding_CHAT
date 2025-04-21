@@ -32,7 +32,7 @@ public class PresenceServiceImpl implements PresenceService {
 
         // 2. all 메시지 읽음 처리
         redisChatReadStore.markAllMessagesAsRead(chatRoomCode, userId);
-
+        
         // 3. 채팅방 참여자 조회
         List<Long> participantUserIds = chatRoomParticipantQueryService.getParticipantUserIds(chatRoomCode);
         for (Long otherUserId : participantUserIds) {

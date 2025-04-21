@@ -21,12 +21,16 @@ public class ChatRoomMetaUpdaterConsumer {
     public void consume(String payload, Acknowledgment ack) {
         try {
             ChatMessageSavedEvent event = objectMapper.readValue(payload, ChatMessageSavedEvent.class);
+            // 1. 메타 정보 업데이트
             redisChatRoomStore.updateChatRoomMeta(
                     event.getChatRoomCode(),
                     event.getContent(),
                     event.getCreatedAt(),
                     event.getSequenceId()
             );
+
+            // 2. dirty 저장소에 키 추가
+            redisChatRoomStore.markChatRoomMetaAsDirty(event.getChatRoomCode());
             ack.acknowledge();
         } catch (Exception e) {
             log.warn("⚠️ Redis 메타 정보 갱신 실패: {}", e.getMessage());

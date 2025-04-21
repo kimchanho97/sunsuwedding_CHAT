@@ -45,4 +45,17 @@ public class RedisKeyUtil {
     public static String chatRoomMessageSeqKey(String chatRoomCode) {
         return PREFIX + ":room:seq:" + chatRoomCode;
     }
+
+    // dirty 채팅방 메타 정보 key 저장소 (Set<String>)
+    // dirty:chat:room:meta → "chat:room:meta:{chatRoomCode}" 저장
+    public static String dirtyChatRoomMetaKey() {
+        return "dirty:" + PREFIX + ":room:meta";
+    }
+
+    // dirty 마지막 읽음 시퀀스 key 저장소 (Set<String>)
+    // dirty:chat:room:last-read → "chat:room:last-read:{chatRoomCode}:{userId}" 저장
+    public static String dirtyLastReadSeqKey() {
+        return "dirty:" + PREFIX + ":room:last-read";
+    }
+
 }

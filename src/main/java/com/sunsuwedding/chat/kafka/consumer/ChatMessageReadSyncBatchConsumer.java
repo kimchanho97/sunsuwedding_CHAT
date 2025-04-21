@@ -21,10 +21,13 @@ public class ChatMessageReadSyncBatchConsumer {
     public void consume(String payload, Acknowledgment ack) {
         try {
             ChatMessageReadSyncBatchEvent event = objectMapper.readValue(payload, ChatMessageReadSyncBatchEvent.class);
-            event.userIds().forEach(userId ->
-                    redisChatReadStore.markMessageAsRead(event.chatRoomCode(), userId, event.messageSequenceId())
-            );
+            event.userIds().forEach(userId -> {
+                // 1. Redis에 읽음 시퀀스 저장
+                redisChatReadStore.markMessageAsRead(event.chatRoomCode(), userId, event.messageSequenceId());
 
+                // 2. Redis에 읽음 시퀀스 dirty 저장소에 키 추가
+                redisChatReadStore.markLastReadSequenceAsDirty(event.chatRoomCode(), userId);
+            });
             ack.acknowledge();
         } catch (Exception e) {
             log.error("❌ ChatMessageReadSyncEvent 처리 실패", e);
