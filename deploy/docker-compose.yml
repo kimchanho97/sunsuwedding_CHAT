@@ -13,6 +13,7 @@ services:
   kafka:
     image: bitnami/kafka:3.5
     container_name: kafka
+    hostname: kafka
     restart: unless-stopped
     ports:
       - "9092:9092"
@@ -20,11 +21,14 @@ services:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_LISTENERS: PLAINTEXT://:9092
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://${KAFKA_ADVERTISED_HOST}:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://${KAFKA_INTERNAL_HOST}:9092
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE: "true"
       ALLOW_PLAINTEXT_LISTENER: "yes"
     depends_on:
       - zookeeper
+    networks:
+      - app-network
 
   redis:
     image: redis:latest
@@ -37,6 +41,26 @@ services:
       --maxmemory-policy allkeys-lru
       --save ""
       --appendonly no
+    networks:
+      - app-network
+
+  app:
+    image: ${DOCKER_USERNAME}/sunsuwedding-chat:latest
+    container_name: chat-app
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      MONGODB_URI: ${MONGODB_URI}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      KAFKA_INTERNAL_HOST: ${KAFKA_INTERNAL_HOST}
+      BACKEND_API_BASE_URL: ${BACKEND_API_BASE_URL}
+      CURRENT_SERVER_URL: ${CURRENT_SERVER_URL}
+    depends_on:
+      - redis
+      - kafka
+      - zookeeper
     networks:
       - app-network
 
