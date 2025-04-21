@@ -9,6 +9,8 @@ services:
       - "2181:2181"
     environment:
       ALLOW_ANONYMOUS_LOGIN: "yes"
+    networks:
+      - app-network
 
   kafka:
     image: bitnami/kafka:3.5
