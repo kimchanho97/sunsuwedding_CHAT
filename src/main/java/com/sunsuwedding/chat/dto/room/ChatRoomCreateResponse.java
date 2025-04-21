@@ -1,6 +1,7 @@
 package com.sunsuwedding.chat.dto.room;
 
 public record ChatRoomCreateResponse(
-        String chatRoomCode
+        String chatRoomCode,
+        boolean alreadyExists
 ) {
 }

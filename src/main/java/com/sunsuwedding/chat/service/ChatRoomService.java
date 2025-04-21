@@ -21,20 +21,25 @@ public class ChatRoomService {
     private final ChatRoomInternalClient chatRoomInternalClient;
     private final RedisChatRoomStore redisChatRoomStore;
     private final RedisChatReadStore redisChatReadStore;
+    private final ChatRoomQueryService chatRoomQueryService;
 
     public ChatRoomCreateResponse createChatRoom(ChatRoomCreateRequest request) {
         // RDB에 채팅방 생성 요청
         ChatRoomCreateResponse response = chatRoomInternalClient.createOrFindChatRoom(request);
 
         // Redis 등록
+        // Redis 최신화 (ZSET + SET은 중복 걱정 없음)
         redisChatRoomStore.addChatRoomToUser(request.userId(), response.chatRoomCode());
         redisChatRoomStore.addChatRoomToUser(request.plannerId(), response.chatRoomCode());
-
         redisChatRoomStore.addMemberToChatRoom(response.chatRoomCode(), request.userId());
         redisChatRoomStore.addMemberToChatRoom(response.chatRoomCode(), request.plannerId());
 
-        redisChatReadStore.initializeLastReadSequence(response.chatRoomCode(), request.userId());
-        redisChatReadStore.initializeLastReadSequence(response.chatRoomCode(), request.plannerId());
+        // 초기화는 새로 생성된 경우만
+        if (!response.alreadyExists()) {
+            redisChatReadStore.initializeLastReadSequence(response.chatRoomCode(), request.userId());
+            redisChatReadStore.initializeLastReadSequence(response.chatRoomCode(), request.plannerId());
+            redisChatRoomStore.initializeChatRoomMeta(response.chatRoomCode());
+        }
         return response;
     }
 
@@ -47,9 +52,9 @@ public class ChatRoomService {
 
     public PaginationResponse<ChatRoomSummaryResponse> getChatRooms(Long userId, int size) {
         // 1. 채팅방 목록, 메타, 상대방 정보, 읽은 시퀀스 조회
-        List<String> chatRoomCodes = redisChatRoomStore.getSortedChatRoomCodes(userId, size);
-        long totalCount = redisChatRoomStore.countChatRooms(userId);
-        Map<String, ChatRoomMeta> chatRoomMetas = redisChatRoomStore.getChatRoomMetas(chatRoomCodes);
+        List<String> chatRoomCodes = chatRoomQueryService.getSortedChatRoomCodes(userId, size);
+        long totalCount = chatRoomQueryService.countChatRooms(userId);
+        Map<String, ChatRoomMeta> chatRoomMetas = chatRoomQueryService.getChatRoomMetas(chatRoomCodes);
         Map<String, ChatRoomPartnerProfileResponse> partnerProfileMap = getPartnerProfileMap(chatRoomCodes, userId);
         Map<String, Long> lastReadSeqMap = redisChatReadStore.getLastReadSequences(chatRoomCodes, userId);
 

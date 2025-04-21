@@ -47,6 +47,16 @@ public class RedisChatRoomStore {
         return redisTemplate.opsForValue().increment(key);
     }
 
+    public void initializeChatRoomMeta(String chatRoomCode) {
+        String key = RedisKeyUtil.chatRoomMetaKey(chatRoomCode);
+        Map<String, String> meta = Map.of(
+                "lastMessage", "",
+                "lastMessageAt", LocalDateTime.now().toString(),
+                "lastMessageSeqId", "0"
+        );
+        redisTemplate.opsForHash().putAll(key, meta);
+    }
+
     public void updateChatRoomMeta(String chatRoomCode, String lastMessage, LocalDateTime lastMessageAt, Long lastSeqId) {
         String key = RedisKeyUtil.chatRoomMetaKey(chatRoomCode);
         Map<String, String> value = Map.of(
@@ -76,30 +86,27 @@ public class RedisChatRoomStore {
 
     public Map<String, ChatRoomMeta> getChatRoomMetas(List<String> chatRoomCodes) {
         Map<String, ChatRoomMeta> result = new HashMap<>();
-
         for (String code : chatRoomCodes) {
             String key = RedisKeyUtil.chatRoomMetaKey(code);
             Map<Object, Object> rawMeta = redisTemplate.opsForHash().entries(key);
 
-            if (!rawMeta.isEmpty()) {
-                String lastMessage = (String) rawMeta.getOrDefault("lastMessage", "");
-                String lastMessageAtStr = (String) rawMeta.getOrDefault("lastMessageAt", null);
-                String lastMessageSeqIdStr = (String) rawMeta.getOrDefault("lastMessageSeqId", "0");
+            String lastMessage = (String) rawMeta.get("lastMessage");
+            String lastMessageAtStr = (String) rawMeta.get("lastMessageAt");
+            String lastMessageSeqIdStr = (String) rawMeta.get("lastMessageSeqId");
 
-                LocalDateTime lastMessageAt = lastMessageAtStr != null
-                        ? LocalDateTime.parse(lastMessageAtStr)
-                        : LocalDateTime.MIN;
-
-                ChatRoomMeta meta = new ChatRoomMeta(lastMessage, lastMessageAt, Long.parseLong(lastMessageSeqIdStr));
-                result.put(code, meta);
-            }
-        }
-
-        // 처음 생성된 채팅방 코드에 대해 default 메타 생성
-        for (String code : chatRoomCodes) {
-            result.putIfAbsent(code, ChatRoomMeta.empty());
+            ChatRoomMeta meta = new ChatRoomMeta(
+                    lastMessage,
+                    LocalDateTime.parse(lastMessageAtStr),
+                    Long.parseLong(lastMessageSeqIdStr)
+            );
+            result.put(code, meta);
         }
         return result;
+    }
+
+    public boolean existsChatRoomMeta(String chatRoomCode) {
+        String key = RedisKeyUtil.chatRoomMetaKey(chatRoomCode);
+        return Boolean.TRUE.equals(redisTemplate.hasKey(key));
     }
 
 }
