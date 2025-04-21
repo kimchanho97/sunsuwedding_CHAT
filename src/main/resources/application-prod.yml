@@ -3,8 +3,13 @@ spring:
     mongodb:
       uri: ${MONGODB_URI}
 
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+      timeout: 3000ms
+
   kafka:
-    bootstrap-servers: ${KAFKA_ADVERTISED_HOST}
+    bootstrap-servers: ${KAFKA_INTERNAL_HOST}:9092
 
     producer:
       acks: all                        # 모든 ISR에서 ack 받을 때만 성공 처리
@@ -20,3 +25,25 @@ spring:
         max.poll.interval.ms: 60000
         session.timeout.ms: 10000
 
+backend:
+  api:
+    base-url: ${BACKEND_API_BASE_URL}
+
+current:
+  server-url: ${CURRENT_SERVER_URL}
+
+server:
+  tomcat:
+    threads:
+      max: 30
+      min-spare: 30
+    accept-count: 100
+    max-connections: 8192
+
+logging:
+  level:
+    root: info
+  file:
+    name: logs/app.log # 로그 파일 이름
+  pattern:
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
