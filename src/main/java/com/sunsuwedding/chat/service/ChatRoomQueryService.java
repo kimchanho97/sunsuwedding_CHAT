@@ -17,11 +17,13 @@ public class ChatRoomQueryService {
     private final ChatRoomInternalClient chatRoomInternalClient;
 
     public List<String> getSortedChatRoomCodes(Long userId, int size) {
-        // Redis에 채팅방 코드가 없을 경우, RDB에서 조회
         List<String> redisCodes = redisChatRoomStore.getSortedChatRoomCodes(userId, size);
         if (!redisCodes.isEmpty()) return redisCodes;
 
-        return chatRoomInternalClient.getSortedChatRoomCodes(userId, size);
+        // Redis 캐시에 없을 경우 RDB fallback + 캐시 갱신
+        List<String> fallbackCodes = chatRoomInternalClient.getSortedChatRoomCodes(userId, size);
+        fallbackCodes.forEach(code -> redisChatRoomStore.addChatRoomToUser(userId, code));
+        return fallbackCodes;
     }
 
     public long countChatRooms(Long userId) {
@@ -33,16 +35,21 @@ public class ChatRoomQueryService {
     }
 
     public Map<String, ChatRoomMeta> getChatRoomMetas(List<String> chatRoomCodes) {
-        // 1. 존재 여부 먼저 검사
         boolean allExist = chatRoomCodes.stream()
                 .allMatch(redisChatRoomStore::existsChatRoomMeta);
 
-        // 2. 모두 존재하면 → Redis에서 조회
         if (allExist) {
             return redisChatRoomStore.getChatRoomMetas(chatRoomCodes);
         }
 
-        // 3. 하나라도 누락 → Fallback to Backend
-        return chatRoomInternalClient.getChatRoomMetas(chatRoomCodes);
+        // Redis에 일부라도 없으면 → 백엔드로 조회하고 Redis 캐시 갱신
+        Map<String, ChatRoomMeta> metaMap = chatRoomInternalClient.getChatRoomMetas(chatRoomCodes);
+        metaMap.forEach((code, meta) -> redisChatRoomStore.updateChatRoomMeta(
+                code,
+                meta.lastMessage(),
+                meta.lastMessageAt(),
+                meta.lastMessageSeqId()
+        ));
+        return metaMap;
     }
 }

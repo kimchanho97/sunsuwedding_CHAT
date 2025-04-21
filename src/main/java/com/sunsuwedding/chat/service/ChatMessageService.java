@@ -32,7 +32,7 @@ public class ChatMessageService {
         Pageable pageable = PageRequest.of(page, size);
         Slice<ChatMessageDocument> slice = mongoRepository.findByChatRoomCodeOrderByCreatedAtDesc(chatRoomCode, pageable);
 
-        Map<Long, Long> userReadSeqMap = chatMessageReadQueryService.getUserReadSequences(chatRoomCode);
+        Map<Long, Long> userReadSeqMap = chatMessageReadQueryService.getReadSequencesByUserInChatRoom(chatRoomCode);
 
         List<ChatMessageResponse> responses = slice.getContent().stream()
                 .map(doc -> ChatMessageResponse.from(doc, userReadSeqMap))

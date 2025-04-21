@@ -22,12 +22,12 @@ public class ChatRoomService {
     private final RedisChatRoomStore redisChatRoomStore;
     private final RedisChatReadStore redisChatReadStore;
     private final ChatRoomQueryService chatRoomQueryService;
+    private final ChatMessageReadQueryService chatMessageReadQueryService;
 
     public ChatRoomCreateResponse createChatRoom(ChatRoomCreateRequest request) {
         // RDB에 채팅방 생성 요청
         ChatRoomCreateResponse response = chatRoomInternalClient.createOrFindChatRoom(request);
-
-        // Redis 등록
+        
         // Redis 최신화 (ZSET + SET은 중복 걱정 없음)
         redisChatRoomStore.addChatRoomToUser(request.userId(), response.chatRoomCode());
         redisChatRoomStore.addChatRoomToUser(request.plannerId(), response.chatRoomCode());
@@ -56,7 +56,7 @@ public class ChatRoomService {
         long totalCount = chatRoomQueryService.countChatRooms(userId);
         Map<String, ChatRoomMeta> chatRoomMetas = chatRoomQueryService.getChatRoomMetas(chatRoomCodes);
         Map<String, ChatRoomPartnerProfileResponse> partnerProfileMap = getPartnerProfileMap(chatRoomCodes, userId);
-        Map<String, Long> lastReadSeqMap = redisChatReadStore.getLastReadSequences(chatRoomCodes, userId);
+        Map<String, Long> lastReadSeqMap = chatMessageReadQueryService.getReadSequencesByChatRoomsForUser(chatRoomCodes, userId);
 
         // 2. 응답 조립
         List<ChatRoomSummaryResponse> responseList = buildSummaryResponses(chatRoomCodes, chatRoomMetas, partnerProfileMap, lastReadSeqMap);

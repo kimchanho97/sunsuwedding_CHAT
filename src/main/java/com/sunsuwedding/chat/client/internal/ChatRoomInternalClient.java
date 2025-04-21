@@ -119,4 +119,26 @@ public class ChatRoomInternalClient {
         }
     }
 
+    public Map<String, Long> getReadSequencesByChatRoomsForUser(List<String> chatRoomCodes, Long userId) {
+        String url = baseUrl + CHAT_ROOM_PATH + "/last-read-sequences";
+
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            // 요청 객체 생성
+            Map<String, Object> body = Map.of(
+                    "chatRoomCodes", chatRoomCodes,
+                    "userId", userId
+            );
+            HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(body, headers);
+            ParameterizedTypeReference<Map<String, Long>> responseType = new ParameterizedTypeReference<>() {
+            };
+            ResponseEntity<Map<String, Long>> response = restTemplate.exchange(url, HttpMethod.POST, requestEntity, responseType);
+            return response.getBody() != null ? response.getBody() : Map.of();
+        } catch (Exception e) {
+            throw new CustomException(LAST_READ_SEQUENCE_FETCH_FAILED);
+        }
+    }
+
 }

@@ -21,7 +21,7 @@ public class ChatMessageReadClient {
 
     private final RestTemplate restTemplate;
 
-    public Map<Long, Long> getReadSequences(String chatRoomCode) {
+    public Map<Long, Long> getReadSequencesByUserInChatRoom(String chatRoomCode) {
         String url = baseUrl + "/internal/chat/rooms/" + chatRoomCode + "/last-read-sequences";
         try {
             ParameterizedTypeReference<Map<Long, Long>> responseType = new ParameterizedTypeReference<>() {

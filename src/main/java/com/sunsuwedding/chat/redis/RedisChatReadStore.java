@@ -24,7 +24,7 @@ public class RedisChatReadStore {
         redisTemplate.opsForValue().set(readKey, String.valueOf(lastSeq));
     }
 
-    public Map<Long, Long> getUserReadSequences(String chatRoomCode, List<Long> userIds) {
+    public Map<Long, Long> getReadSequencesByUserInChatRoom(String chatRoomCode, List<Long> userIds) {
         Map<Long, Long> result = new HashMap<>();
         List<String> keys = userIds.stream()
                 .map(userId -> RedisKeyUtil.lastReadSeqKey(chatRoomCode, userId))
@@ -51,7 +51,12 @@ public class RedisChatReadStore {
         redisTemplate.opsForValue().set(key, String.valueOf(sequenceId));
     }
 
-    public Map<String, Long> getLastReadSequences(List<String> chatRoomCodes, Long userId) {
+    public boolean existsReadSequence(String chatRoomCode, Long userId) {
+        String key = RedisKeyUtil.lastReadSeqKey(chatRoomCode, userId);
+        return Boolean.TRUE.equals(redisTemplate.hasKey(key));
+    }
+
+    public Map<String, Long> getReadSequencesByChatRoomsForUser(List<String> chatRoomCodes, Long userId) {
         Map<String, Long> result = new HashMap<>();
         List<String> keys = chatRoomCodes.stream()
                 .map(code -> RedisKeyUtil.lastReadSeqKey(code, userId))
