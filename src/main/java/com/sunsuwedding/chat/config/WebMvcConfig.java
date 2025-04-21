@@ -9,10 +9,11 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**")
-                .allowedOriginPatterns("http://localhost:3000", "https://*.sunsu-wedding.shop")
+        registry.addMapping("/api/chat/**") // 명확히 필요한 경로만!
+                .allowedOriginPatterns(
+                        "http://localhost:3000",
+                        "https://sunsu-wedding.shop")
                 .allowedMethods("GET", "POST", "PUT", "DELETE")
                 .allowCredentials(true);
     }
 }
-
