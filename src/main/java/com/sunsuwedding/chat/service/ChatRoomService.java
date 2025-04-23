@@ -27,7 +27,7 @@ public class ChatRoomService {
     public ChatRoomCreateResponse createChatRoom(ChatRoomCreateRequest request) {
         // RDB에 채팅방 생성 요청
         ChatRoomCreateResponse response = chatRoomInternalClient.createOrFindChatRoom(request);
-        
+
         // Redis 최신화 (ZSET + SET은 중복 걱정 없음)
         redisChatRoomStore.addChatRoomToUser(request.userId(), response.chatRoomCode());
         redisChatRoomStore.addChatRoomToUser(request.plannerId(), response.chatRoomCode());
@@ -77,22 +77,12 @@ public class ChatRoomService {
             Map<String, Long> lastReadSeqMap
     ) {
         return chatRoomCodes.stream()
-                .map(code -> {
-                    ChatRoomMeta meta = chatRoomMetas.get(code);
-                    ChatRoomPartnerProfileResponse partner = partnerProfileMap.get(code);
-                    Long readSeq = lastReadSeqMap.get(code);
-                    int unread = (readSeq == null) ? 0 : (int) (meta.lastMessageSeqId() - readSeq);
-
-                    return new ChatRoomSummaryResponse(
-                            code,
-                            partner.partnerUserId(),
-                            partner.partnerName(),
-                            partner.avatarUrl(),
-                            meta.lastMessage(),
-                            meta.lastMessageAt(),
-                            Math.max(unread, 0)
-                    );
-                })
+                .map(code -> ChatRoomSummaryResponse.from(
+                        code,
+                        partnerProfileMap.get(code),
+                        chatRoomMetas.get(code),
+                        lastReadSeqMap.get(code)
+                ))
                 .toList();
     }
 
