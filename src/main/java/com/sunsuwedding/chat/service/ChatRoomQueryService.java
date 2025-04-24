@@ -1,6 +1,7 @@
 package com.sunsuwedding.chat.service;
 
 import com.sunsuwedding.chat.client.internal.ChatRoomInternalClient;
+import com.sunsuwedding.chat.client.internal.ChatRoomMetaClient;
 import com.sunsuwedding.chat.model.ChatRoomMeta;
 import com.sunsuwedding.chat.redis.RedisChatRoomStore;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,7 @@ public class ChatRoomQueryService {
 
     private final RedisChatRoomStore redisChatRoomStore;
     private final ChatRoomInternalClient chatRoomInternalClient;
+    private final ChatRoomMetaClient chatRoomMetaClient;
 
     public List<String> getSortedChatRoomCodes(Long userId, int size) {
         List<String> redisCodes = redisChatRoomStore.getSortedChatRoomCodes(userId, size);
@@ -47,7 +49,7 @@ public class ChatRoomQueryService {
         }
 
         // Redis에 일부라도 없으면 → 백엔드로 조회하고 Redis 캐시 갱신
-        Map<String, ChatRoomMeta> metaMap = chatRoomInternalClient.getChatRoomMetas(chatRoomCodes);
+        Map<String, ChatRoomMeta> metaMap = chatRoomMetaClient.getChatRoomMetas(chatRoomCodes);
         metaMap.forEach((code, meta) -> redisChatRoomStore.updateChatRoomMeta(
                 code,
                 meta.lastMessage(),

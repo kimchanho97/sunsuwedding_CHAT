@@ -50,6 +50,11 @@ public class RedisChatRoomStore {
         return redisTemplate.opsForValue().increment(key);
     }
 
+    public void setMessageSeq(String chatRoomCode, Long nextSeqId) {
+        String key = RedisKeyUtil.chatRoomMessageSeqKey(chatRoomCode);
+        redisTemplate.opsForValue().set(key, String.valueOf(nextSeqId));
+    }
+
     public void initializeChatRoomMeta(String chatRoomCode) {
         String key = RedisKeyUtil.chatRoomMetaKey(chatRoomCode);
         Map<String, String> meta = Map.of(

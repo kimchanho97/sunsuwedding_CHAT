@@ -1,4 +1,4 @@
-package com.sunsuwedding.chat.kafka;
+package com.sunsuwedding.chat.init;
 
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;

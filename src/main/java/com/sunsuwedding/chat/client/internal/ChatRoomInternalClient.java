@@ -2,7 +2,6 @@ package com.sunsuwedding.chat.client.internal;
 
 import com.sunsuwedding.chat.common.exception.CustomException;
 import com.sunsuwedding.chat.dto.room.*;
-import com.sunsuwedding.chat.model.ChatRoomMeta;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
@@ -27,7 +26,6 @@ public class ChatRoomInternalClient {
 
     @Value("${backend.api.base-url}")
     private String baseUrl;
-
 
     public ChatRoomCreateResponse createOrFindChatRoom(ChatRoomCreateRequest request) {
         String url = baseUrl + CHAT_ROOM_PATH;
@@ -68,7 +66,7 @@ public class ChatRoomInternalClient {
                     request,
                     ChatRoomPartnerProfileResponse[].class
             );
-            
+
             return response != null ? List.of(response) : List.of();
         } catch (RestClientException e) {
             throw new CustomException(CHAT_ROOM_PARTNER_FETCH_FAILED);
@@ -94,24 +92,6 @@ public class ChatRoomInternalClient {
             return response.getBody() != null ? response.getBody() : 0L;
         } catch (Exception e) {
             throw new CustomException(CHAT_ROOM_COUNT_FETCH_FAILED);
-        }
-    }
-
-    public Map<String, ChatRoomMeta> getChatRoomMetas(List<String> chatRoomCodes) {
-        String url = baseUrl + CHAT_ROOM_PATH + "/meta";
-        try {
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-            HttpEntity<List<String>> entity = new HttpEntity<>(chatRoomCodes, headers);
-
-            ParameterizedTypeReference<Map<String, ChatRoomMeta>> responseType = new ParameterizedTypeReference<>() {
-            };
-            ResponseEntity<Map<String, ChatRoomMeta>> response =
-                    restTemplate.exchange(url, HttpMethod.POST, entity, responseType);
-
-            return response.getBody() != null ? response.getBody() : Map.of();
-        } catch (Exception e) {
-            throw new CustomException(CHAT_ROOM_META_FETCH_FAILED);
         }
     }
 
