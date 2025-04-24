@@ -25,7 +25,6 @@ public class RedisChatRoomStore {
         redisTemplate.opsForZSet().add(RedisKeyUtil.userChatRoomsKey(userId), chatRoomCode, score);
     }
 
-
     public void resortChatRoom(Long userId, String chatRoomCode, Long timestampMillis) {
         String zsetKey = RedisKeyUtil.userChatRoomsKey(userId);
         redisTemplate.opsForZSet().add(zsetKey, chatRoomCode, timestampMillis);

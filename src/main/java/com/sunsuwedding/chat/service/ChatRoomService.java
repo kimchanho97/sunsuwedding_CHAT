@@ -37,8 +37,13 @@ public class ChatRoomService {
         // 초기화는 새로 생성된 경우만
         if (!response.alreadyExists()) {
             redisChatReadStore.initializeLastReadSequence(response.chatRoomCode(), request.userId());
+            redisChatReadStore.markLastReadSequenceAsDirty(response.chatRoomCode(), request.userId());
+
             redisChatReadStore.initializeLastReadSequence(response.chatRoomCode(), request.plannerId());
+            redisChatReadStore.markLastReadSequenceAsDirty(response.chatRoomCode(), request.plannerId());
+
             redisChatRoomStore.initializeChatRoomMeta(response.chatRoomCode());
+            redisChatRoomStore.markChatRoomMetaAsDirty(response.chatRoomCode());
         }
         return response;
     }
