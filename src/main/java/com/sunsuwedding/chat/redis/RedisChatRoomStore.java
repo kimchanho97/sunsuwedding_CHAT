@@ -20,6 +20,12 @@ public class RedisChatRoomStore {
         redisTemplate.opsForZSet().add(RedisKeyUtil.userChatRoomsKey(userId), chatRoomCode, now);
     }
 
+    // 정렬 유지용 (lastMessageAt 기반)
+    public void addChatRoomWithScore(Long userId, String chatRoomCode, long score) {
+        redisTemplate.opsForZSet().add(RedisKeyUtil.userChatRoomsKey(userId), chatRoomCode, score);
+    }
+
+
     public void resortChatRoom(Long userId, String chatRoomCode, Long timestampMillis) {
         String zsetKey = RedisKeyUtil.userChatRoomsKey(userId);
         redisTemplate.opsForZSet().add(zsetKey, chatRoomCode, timestampMillis);
@@ -69,10 +75,6 @@ public class RedisChatRoomStore {
         String key = RedisKeyUtil.chatRoomMembersKey(chatRoomCode);
         String[] userIdStrings = userIds.stream().map(String::valueOf).toArray(String[]::new);
         redisTemplate.opsForSet().add(key, userIdStrings);
-    }
-
-    public long countChatRooms(Long userId) {
-        return redisTemplate.opsForZSet().size(RedisKeyUtil.userChatRoomsKey(userId));
     }
 
     public List<String> getSortedChatRoomCodes(Long userId, int size) {

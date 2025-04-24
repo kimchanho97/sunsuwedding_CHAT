@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 @RequiredArgsConstructor
@@ -18,20 +19,20 @@ public class ChatRoomQueryService {
 
     public List<String> getSortedChatRoomCodes(Long userId, int size) {
         List<String> redisCodes = redisChatRoomStore.getSortedChatRoomCodes(userId, size);
-        if (!redisCodes.isEmpty()) return redisCodes;
+        if (redisCodes.size() >= size) return redisCodes;
 
         // Redis 캐시에 없을 경우 RDB fallback + 캐시 갱신
         List<String> fallbackCodes = chatRoomInternalClient.getSortedChatRoomCodes(userId, size);
-        fallbackCodes.forEach(code -> redisChatRoomStore.addChatRoomToUser(userId, code));
-        return fallbackCodes;
-    }
 
-    public long countChatRooms(Long userId) {
-        Long redisCount = redisChatRoomStore.countChatRooms(userId);
-        if (redisCount != null && redisCount > 0) {
-            return redisCount;
-        }
-        return chatRoomInternalClient.countChatRooms(userId);
+        // 현재 시간보다 더 과거의 baseTime (정렬용 score이기 때문에 시간 오차 허용)
+        long baseTime = System.currentTimeMillis() - 1_000_000; // 약 17분 전
+        AtomicInteger offset = new AtomicInteger(0);
+        
+        fallbackCodes.forEach(code -> {
+            long score = baseTime + offset.getAndIncrement();
+            redisChatRoomStore.addChatRoomWithScore(userId, code, score);
+        });
+        return fallbackCodes;
     }
 
     public Map<String, ChatRoomMeta> getChatRoomMetas(List<String> chatRoomCodes) {
