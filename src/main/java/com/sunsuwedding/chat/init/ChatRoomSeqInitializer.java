@@ -25,7 +25,7 @@ public class ChatRoomSeqInitializer {
 
         chatRooms.forEach((chatRoomCode, meta) -> {
             Long lastSeq = meta.lastMessageSeqId() != null ? meta.lastMessageSeqId() : 0L;
-            redisChatRoomStore.setMessageSeq(chatRoomCode, lastSeq + 1);
+            redisChatRoomStore.setMessageSeq(chatRoomCode, lastSeq);
         });
 
         log.info("✅ 채팅방 seqId 복구 완료. 총 {}건", chatRooms.size());
