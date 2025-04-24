@@ -38,8 +38,6 @@ public class ChatRoomSummaryResponse {
                 .withZoneSameInstant(kst)
                 .toLocalDateTime();
 
-        log.info("📩 [{}] lastMessageAt (UTC): {}, (KST): {}", chatRoomCode, lastMessageAtUTC, lastMessageAtKST);
-
         return new ChatRoomSummaryResponse(
                 chatRoomCode,
                 partner.partnerUserId(),

@@ -43,22 +43,17 @@ public class ChatRoomQueryService {
                 .allMatch(redisChatRoomStore::existsChatRoomMeta);
 
         if (allExist) {
-            log.info("🟢 All chatRoomMeta found in Redis");
             return redisChatRoomStore.getChatRoomMetas(chatRoomCodes);
         }
 
         // Redis에 일부라도 없으면 → 백엔드로 조회하고 Redis 캐시 갱신
-        log.info("🔄 Fallback to DB for chatRoomMeta");
         Map<String, ChatRoomMeta> metaMap = chatRoomInternalClient.getChatRoomMetas(chatRoomCodes);
-        metaMap.forEach((code, meta) -> {
-            log.info("🔧 Fallback meta - code: {}, lastMessageAt(UTC): {}", code, meta.lastMessageAt());
-            redisChatRoomStore.updateChatRoomMeta(
-                    code,
-                    meta.lastMessage(),
-                    meta.lastMessageAt(),
-                    meta.lastMessageSeqId()
-            );
-        });
+        metaMap.forEach((code, meta) -> redisChatRoomStore.updateChatRoomMeta(
+                code,
+                meta.lastMessage(),
+                meta.lastMessageAt(),
+                meta.lastMessageSeqId()
+        ));
         return metaMap;
     }
 }
