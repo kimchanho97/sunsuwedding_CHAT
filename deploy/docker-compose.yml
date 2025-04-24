@@ -43,6 +43,7 @@ services:
       --maxmemory-policy allkeys-lru
       --save ""
       --appendonly no
+      --replicaof "" ""
     networks:
       - app-network
 

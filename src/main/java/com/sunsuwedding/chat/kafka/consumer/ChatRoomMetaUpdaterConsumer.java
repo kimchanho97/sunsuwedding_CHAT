@@ -9,6 +9,8 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Component;
 
+import java.time.ZoneId;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -21,6 +23,15 @@ public class ChatRoomMetaUpdaterConsumer {
     public void consume(String payload, Acknowledgment ack) {
         try {
             ChatMessageSavedEvent event = objectMapper.readValue(payload, ChatMessageSavedEvent.class);
+
+            log.info("📥 Kafka consumed - chatRoomCode: {}, createdAt(UTC): {}, createdAt(KST): {}",
+                    event.getChatRoomCode(),
+                    event.getCreatedAt(),
+                    event.getCreatedAt().atZone(ZoneId.of("UTC"))
+                            .withZoneSameInstant(ZoneId.of("Asia/Seoul"))
+                            .toLocalDateTime()
+            );
+
             // 1. 메타 정보 업데이트
             redisChatRoomStore.updateChatRoomMeta(
                     event.getChatRoomCode(),

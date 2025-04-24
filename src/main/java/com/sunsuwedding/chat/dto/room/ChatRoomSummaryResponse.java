@@ -4,10 +4,12 @@ import com.sunsuwedding.chat.model.ChatRoomMeta;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 
+@Slf4j
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
@@ -28,10 +30,15 @@ public class ChatRoomSummaryResponse {
             Long readSeq
     ) {
         int unread = (readSeq == null) ? 0 : (int) (meta.lastMessageSeqId() - readSeq);
-        LocalDateTime lastMessageAtKST = meta.lastMessageAt()
-                .atZone(ZoneId.of("UTC"))
-                .withZoneSameInstant(ZoneId.of("Asia/Seoul"))
+        ZoneId utc = ZoneId.of("UTC");
+        ZoneId kst = ZoneId.of("Asia/Seoul");
+
+        LocalDateTime lastMessageAtUTC = meta.lastMessageAt();
+        LocalDateTime lastMessageAtKST = lastMessageAtUTC.atZone(utc)
+                .withZoneSameInstant(kst)
                 .toLocalDateTime();
+
+        log.info("📩 [{}] lastMessageAt (UTC): {}, (KST): {}", chatRoomCode, lastMessageAtUTC, lastMessageAtKST);
 
         return new ChatRoomSummaryResponse(
                 chatRoomCode,
