@@ -10,6 +10,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -36,13 +39,25 @@ public class ChatDataBatchSyncScheduler {
         if (chatRoomCodes == null || chatRoomCodes.isEmpty()) return;
 
         List<String> chunk = chatRoomCodes.stream().limit(CHUNK_SIZE).toList();
+
         List<ChatRoomMetaSyncRequest> requests = chunk.stream()
                 .map(chatRoomCode -> {
                     Map<String, String> meta = redisChatRoomStore.getChatRoomMeta(chatRoomCode);
+
+                    // 1. UTC 문자열 → LocalDateTime
+                    LocalDateTime utcDateTime = LocalDateTime.parse(meta.get("lastMessageAt"));
+
+                    // 2. UTC → KST 변환
+                    LocalDateTime kstDateTime = utcDateTime
+                            .atZone(ZoneOffset.UTC)
+                            .withZoneSameInstant(ZoneId.of("Asia/Seoul"))
+                            .toLocalDateTime();
+
+                    // 3. ChatRoomMetaSyncRequest에 KST 문자열로 담기
                     return new ChatRoomMetaSyncRequest(
                             chatRoomCode,
                             meta.get("lastMessage"),
-                            meta.get("lastMessageAt"),
+                            kstDateTime.toString(),
                             meta.get("lastMessageSeqId")
                     );
                 })
