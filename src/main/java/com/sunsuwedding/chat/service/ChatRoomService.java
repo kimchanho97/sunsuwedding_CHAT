@@ -58,7 +58,7 @@ public class ChatRoomService {
     public PaginationResponse<ChatRoomSummaryResponse> getChatRooms(Long userId, int size) {
         // 1. 채팅방 목록, 메타, 상대방 정보, 읽은 시퀀스 조회
         long totalCount = chatRoomInternalClient.countChatRooms(userId);
-        List<String> chatRoomCodes = chatRoomQueryService.getSortedChatRoomCodes(userId, size);
+        List<String> chatRoomCodes = chatRoomQueryService.getSortedChatRoomCodes(userId, size, totalCount);
         Map<String, ChatRoomMeta> chatRoomMetas = chatRoomQueryService.getChatRoomMetas(chatRoomCodes);
         Map<String, ChatRoomPartnerProfileResponse> partnerProfileMap = getPartnerProfileMap(chatRoomCodes, userId);
         Map<String, Long> lastReadSeqMap = chatMessageReadQueryService.getReadSequencesByChatRoomsForUser(chatRoomCodes, userId);

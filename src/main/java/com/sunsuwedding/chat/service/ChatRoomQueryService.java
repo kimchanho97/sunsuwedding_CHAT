@@ -21,9 +21,9 @@ public class ChatRoomQueryService {
     private final ChatRoomInternalClient chatRoomInternalClient;
     private final ChatRoomMetaClient chatRoomMetaClient;
 
-    public List<String> getSortedChatRoomCodes(Long userId, int size) {
+    public List<String> getSortedChatRoomCodes(Long userId, int size, long totalCount) {
         List<String> redisCodes = redisChatRoomStore.getSortedChatRoomCodes(userId, size);
-        if (redisCodes.size() >= size) return redisCodes;
+        if (redisCodes.size() >= size || redisCodes.size() == totalCount) return redisCodes;
 
         // Redis 캐시에 없을 경우 RDB fallback + 캐시 갱신
         List<String> fallbackCodes = chatRoomInternalClient.getSortedChatRoomCodes(userId, size);
