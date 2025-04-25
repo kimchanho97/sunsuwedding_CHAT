@@ -13,14 +13,11 @@ export $(grep -v '^#' .env | xargs)
 
 APP_IMAGE="${DOCKER_USERNAME}/sunsuwedding-chat:latest"
 
-echo "🧼 기존 컨테이너 정리 중..."
-docker-compose down -v --remove-orphans
+echo "🧼 기존 컨테이너 종료 중..."
+docker-compose down --remove-orphans
 
 echo "🗑 기존 앱 이미지 전체 삭제 중..."
 docker images "$APP_IMAGE" --format "{{.ID}}" | xargs -r docker rmi
-
-echo "🧹 사용하지 않는 볼륨 정리 중..."
-docker volume prune -f
 
 echo "🧹 dangling 이미지 정리 중..."
 docker image prune -f

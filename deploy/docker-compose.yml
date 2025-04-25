@@ -41,8 +41,11 @@ services:
     command: >
       --maxmemory 128mb
       --maxmemory-policy allkeys-lru
-      --save ""
+      --save 60 1000
       --appendonly no
+      --replicaof no one
+    volumes:
+      - redis-data:/data
     networks:
       - app-network
 

@@ -5,8 +5,6 @@ import com.sunsuwedding.chat.model.ChatRoomMeta;
 import com.sunsuwedding.chat.redis.RedisChatRoomStore;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
@@ -19,7 +17,7 @@ public class ChatRoomSeqInitializer {
     private final ChatRoomMetaClient chatRoomMetaClient;
     private final RedisChatRoomStore redisChatRoomStore;
 
-    @EventListener(ApplicationReadyEvent.class)
+    //    @EventListener(ApplicationReadyEvent.class)
     public void restoreSeqIdsOnStartup() {
         Map<String, ChatRoomMeta> chatRooms = chatRoomMetaClient.getAllChatRoomMetas();
 

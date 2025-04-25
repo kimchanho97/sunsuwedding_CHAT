@@ -48,6 +48,8 @@ public class ChatMessagePersistenceConsumer {
 
                 // 2. MongoDB 저장
                 ChatMessageDocument savedDocument = mongoRepository.save(request.toDocument(messageSeqId));
+                // TODO: 저장은 성공하고, 후속 이벤트 발행(Kafka 전송)이 실패할 수 있어 중복 처리를 방지해야 함
+                //  messageSeqId에 unique 인덱스를 추가하고, save → upsert 또는 DuplicateKeyException 처리로 멱등성 보장
 
                 // 3. 후속 이벤트 발행
                 ChatMessageSavedEvent event = ChatMessageSavedEvent.from(savedDocument);
