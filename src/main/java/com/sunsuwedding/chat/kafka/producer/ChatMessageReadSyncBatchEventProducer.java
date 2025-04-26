@@ -1,5 +1,6 @@
 package com.sunsuwedding.chat.kafka.producer;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sunsuwedding.chat.event.ChatMessageReadSyncBatchEvent;
 import lombok.RequiredArgsConstructor;
@@ -19,8 +20,8 @@ public class ChatMessageReadSyncBatchEventProducer {
         try {
             String payload = objectMapper.writeValueAsString(event);
             kafkaTemplate.send("chat-message-read-sync", event.chatRoomCode(), payload);
-        } catch (Exception e) {
-            log.error("❌ ChatMessageReadSyncEvent 전송 실패", e);
+        } catch (JsonProcessingException e) {
+            log.error("❌ ChatMessageReadSyncBatchEvent 직렬화 실패", e);
         }
     }
 }

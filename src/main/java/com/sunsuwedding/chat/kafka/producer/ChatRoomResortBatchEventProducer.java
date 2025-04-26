@@ -21,7 +21,7 @@ public class ChatRoomResortBatchEventProducer {
             String payload = objectMapper.writeValueAsString(event);
             kafkaTemplate.send("chat-room-resort", event.chatRoomCode(), payload);
         } catch (JsonProcessingException e) {
-            log.error("❌ 채팅방 정렬 이벤트 직렬화 실패", e);
+            log.error("❌ ChatRoomResortBatchEvent 직렬화 실패", e);
         }
     }
 }

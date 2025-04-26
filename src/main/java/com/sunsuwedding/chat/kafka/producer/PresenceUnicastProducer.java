@@ -20,9 +20,8 @@ public class PresenceUnicastProducer {
         try {
             String payload = objectMapper.writeValueAsString(event);
             kafkaTemplate.send("presence-status", event.getChatRoomCode(), payload);
-            // TODO: 추가적으로 전송 실패시 콜백 처리도 가능
         } catch (JsonProcessingException e) {
-            log.error("❌ Kafka 직렬화 실패 - 이벤트 구조 확인 필요: {}", event, e);
+            log.error("❌ PresenceStatusEvent 직렬화 실패", e);
         }
     }
 }

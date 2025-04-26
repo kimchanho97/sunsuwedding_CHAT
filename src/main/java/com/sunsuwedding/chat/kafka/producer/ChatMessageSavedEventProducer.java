@@ -20,7 +20,7 @@ public class ChatMessageSavedEventProducer {
             String payload = objectMapper.writeValueAsString(event);
             kafkaOps.send("chat-message-saved", event.getChatRoomCode(), payload);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException("후속 이벤트 직렬화 실패", e);
+            log.error("❌ ChatMessageSavedEvent 직렬화 실패", e);
         }
     }
 }
