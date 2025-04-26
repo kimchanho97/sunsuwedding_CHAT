@@ -26,7 +26,7 @@ public class ChatRoomResortBatchEventConsumer {
             );
             ack.acknowledge();
         } catch (Exception e) {
-            log.warn("⚠️ 채팅방 목록 정렬 실패", e);
+            log.error("❌ chat-room-resort 후속 이벤트 처리 실패", e);
         }
     }
 

@@ -33,8 +33,7 @@ public class ChatRoomMetaUpdaterConsumer {
             redisChatRoomStore.markChatRoomMetaAsDirty(event.getChatRoomCode());
             ack.acknowledge();
         } catch (Exception e) {
-            log.warn("⚠️ Redis 메타 정보 갱신 실패: {}", e.getMessage());
-            // TODO: MongoDB 기반으로 chat:room:meta:* rebuild 배치 구현(Eventually Consistent 보장)
+            log.error("❌ chat-room-meta 업데이트 실패", e);
         }
     }
 }

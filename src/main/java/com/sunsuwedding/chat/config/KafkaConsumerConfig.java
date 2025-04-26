@@ -31,6 +31,7 @@ public class KafkaConsumerConfig {
         config.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 10);
         config.put(ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG, 60000);
         config.put(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, 10000);
+        config.put(ConsumerConfig.ISOLATION_LEVEL_CONFIG, "read_committed");
 
         return new DefaultKafkaConsumerFactory<>(config);
     }

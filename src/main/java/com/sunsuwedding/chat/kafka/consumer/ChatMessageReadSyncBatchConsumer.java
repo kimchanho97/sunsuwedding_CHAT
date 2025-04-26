@@ -30,7 +30,7 @@ public class ChatMessageReadSyncBatchConsumer {
             });
             ack.acknowledge();
         } catch (Exception e) {
-            log.error("❌ ChatMessageReadSyncEvent 처리 실패", e);
+            log.error("❌ chat-message-read-sync 후속 이벤트 처리 실패", e);
         }
     }
 }
