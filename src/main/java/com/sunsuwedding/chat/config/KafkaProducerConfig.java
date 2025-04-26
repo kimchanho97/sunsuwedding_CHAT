@@ -33,6 +33,7 @@ public class KafkaProducerConfig {
         config.put(ProducerConfig.ACKS_CONFIG, "all");
         config.put(ProducerConfig.RETRIES_CONFIG, 5);
         config.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, true);
+        config.put(ProducerConfig.MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION, 1); // 메시지의 전송 순서를 보장하기 위해 1로 설정
         config.put(ProducerConfig.TRANSACTIONAL_ID_CONFIG, "chat-tx-id");
 
         DefaultKafkaProducerFactory<String, String> factory = new DefaultKafkaProducerFactory<>(config);
@@ -57,6 +58,7 @@ public class KafkaProducerConfig {
         config.put(ProducerConfig.ACKS_CONFIG, "all");
         config.put(ProducerConfig.RETRIES_CONFIG, 5);
         config.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, true);
+        config.put(ProducerConfig.MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION, 1); // 메시지의 전송 순서를 보장하기 위해 1로 설정
         return new DefaultKafkaProducerFactory<>(config);
     }
 
