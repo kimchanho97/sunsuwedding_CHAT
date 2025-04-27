@@ -1,6 +1,7 @@
 package com.sunsuwedding.chat.kafka.consumer;
 
 import com.sunsuwedding.chat.client.interserver.PresenceInterServerClient;
+import com.sunsuwedding.chat.common.util.WebSocketUtils;
 import com.sunsuwedding.chat.dto.presence.PresenceStatusDto;
 import com.sunsuwedding.chat.dto.presence.PresenceStatusMessageResponse;
 import com.sunsuwedding.chat.event.PresenceStatusEvent;
@@ -43,13 +44,20 @@ public class PresenceUnicastConsumer {
         ack.acknowledge();
     }
 
-    private void sendToWebSocket(PresenceStatusDto message) {
+    private void sendToWebSocket(PresenceStatusDto status) {
         PresenceStatusMessageResponse response = new PresenceStatusMessageResponse(
-                message.getUserId(),
-                message.getStatus()
+                status.getUserId(),
+                status.getStatus()
         );
-        String destination = "/topic/presence/" + message.getChatRoomCode() + "/" + message.getUserId();
-        messagingTemplate.convertAndSend(destination, response);
+        String destination = "/topic/presence/" + status.getChatRoomCode() + "/" + status.getUserId();
+        String logContext = String.format("[Presence][%d][%s]", status.getUserId(), status.getStatus());
+
+        WebSocketUtils.sendMessage(
+                messagingTemplate,
+                destination,
+                response,
+                logContext
+        );
     }
 
     private void sendToRemoteServer(String targetServerUrl, PresenceStatusDto message) {

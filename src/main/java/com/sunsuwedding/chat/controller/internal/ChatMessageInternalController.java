@@ -1,5 +1,6 @@
 package com.sunsuwedding.chat.controller.internal;
 
+import com.sunsuwedding.chat.common.util.WebSocketUtils;
 import com.sunsuwedding.chat.dto.message.ChatMessageResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +20,15 @@ public class ChatMessageInternalController {
     public ResponseEntity<Void> broadcastToChatRoom(@PathVariable String chatRoomCode,
                                                     @RequestBody ChatMessageResponse message) {
         String destination = "/topic/chat/rooms/" + chatRoomCode;
-        messagingTemplate.convertAndSend(destination, message);
+        String logContext = String.format("[Message][%s][%s]", chatRoomCode, message.getSequenceId());
+
+        WebSocketUtils.sendMessage(
+                messagingTemplate,
+                destination,
+                message,
+                logContext
+        );
+        // 웹소켓 전송 결과와 관계없이 HTTP 응답은 항상 성공(200)으로 반환
         return ResponseEntity.ok().build();
     }
 }

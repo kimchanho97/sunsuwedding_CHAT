@@ -1,5 +1,6 @@
 package com.sunsuwedding.chat.controller.internal;
 
+import com.sunsuwedding.chat.common.util.WebSocketUtils;
 import com.sunsuwedding.chat.dto.presence.PresenceStatusDto;
 import com.sunsuwedding.chat.dto.presence.PresenceStatusMessageResponse;
 import lombok.RequiredArgsConstructor;
@@ -25,10 +26,17 @@ public class PresenceInternalController {
                 status.getUserId(),
                 status.getStatus()
         );
-        messagingTemplate.convertAndSend(
-                "/topic/presence/" + status.getChatRoomCode() + "/" + status.getUserId(),
-                response
+
+        String destination = "/topic/presence/" + status.getChatRoomCode() + "/" + status.getUserId();
+        String logContext = String.format("[Presence][%d][%s]", status.getUserId(), status.getStatus());
+
+        WebSocketUtils.sendMessage(
+                messagingTemplate,
+                destination,
+                response,
+                logContext
         );
+        // 웹소켓 전송 결과와 관계없이 HTTP 응답은 항상 성공(200)으로 반환
         return ResponseEntity.ok().build();
     }
 }

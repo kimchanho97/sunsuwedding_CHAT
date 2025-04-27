@@ -1,6 +1,7 @@
 package com.sunsuwedding.chat.kafka.consumer;
 
 import com.sunsuwedding.chat.client.interserver.ChatMessageInterServerClient;
+import com.sunsuwedding.chat.common.util.WebSocketUtils;
 import com.sunsuwedding.chat.dto.message.ChatMessageResponse;
 import com.sunsuwedding.chat.event.ChatMessageUnicastEvent;
 import lombok.RequiredArgsConstructor;
@@ -41,7 +42,14 @@ public class ChatMessageUnicastConsumer {
 
     private void sendToWebSocket(String chatRoomCode, ChatMessageResponse message) {
         String destination = "/topic/chat/rooms/" + chatRoomCode;
-        messagingTemplate.convertAndSend(destination, message);
+        String logContext = String.format("[Message][%s][%s]", chatRoomCode, message.getSequenceId());
+
+        WebSocketUtils.sendMessage(
+                messagingTemplate,
+                destination,
+                message,
+                logContext
+        );
     }
 
     private void sendToRemoteServer(String targetServerUrl, String chatRoomCode, ChatMessageResponse message) {
