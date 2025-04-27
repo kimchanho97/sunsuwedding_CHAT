@@ -1,46 +1,72 @@
 package com.sunsuwedding.chat.config;
 
+import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
-import org.apache.kafka.common.serialization.StringDeserializer;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.listener.ContainerProperties;
+import org.springframework.kafka.listener.DefaultErrorHandler;
+import org.springframework.kafka.transaction.KafkaTransactionManager;
 
 import java.util.HashMap;
 import java.util.Map;
 
 @Configuration
+@RequiredArgsConstructor
 public class KafkaConsumerConfig {
 
-    @Value("${spring.kafka.bootstrap-servers}")
-    private String bootstrapServers;
+    // yml을 바탕으로 자동 생성된 DefaultKafkaConsumerFactory
+    private final ConsumerFactory<String, Object> defaultConsumerFactory;
+    private final KafkaProperties kafkaProperties;
+    private final KafkaTransactionManager<String, Object> ktm;
+    private final DefaultErrorHandler errorHandler;
 
+    // 1) At-Least-Once: 기본 수동 ACK, 트랜잭션·isolation 없음
     @Bean
-    public ConsumerFactory<String, String> consumerFactory() {
-        Map<String, Object> config = new HashMap<>();
-        config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-        config.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-        config.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+    public ConcurrentKafkaListenerContainerFactory<String, Object> kafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, Object> factory =
+                new ConcurrentKafkaListenerContainerFactory<>();
 
-        config.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
-        config.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
-        config.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 10);
-        config.put(ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG, 60000);
-        config.put(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, 10000);
-        config.put(ConsumerConfig.ISOLATION_LEVEL_CONFIG, "read_committed");
-
-        return new DefaultKafkaConsumerFactory<>(config);
-    }
-
-    @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, String> kafkaListenerContainerFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
-        factory.setConsumerFactory(consumerFactory());
-        factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL_IMMEDIATE); // 수동 ack 설정
+        factory.setConsumerFactory(defaultConsumerFactory);
+        factory.setCommonErrorHandler(errorHandler);
+        factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL_IMMEDIATE);
         return factory;
     }
+
+    // 2) Transactional: A→B 원자적 Exactly-Once (produce + offset 커밋 묶음)
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, Object> transactionalFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, Object> factory =
+                new ConcurrentKafkaListenerContainerFactory<>();
+
+        factory.setConsumerFactory(defaultConsumerFactory);
+        factory.setCommonErrorHandler(errorHandler);
+        // 트랜잭션 매니저 연결 + 레코드 단위 트랜잭션
+        factory.getContainerProperties().setKafkaAwareTransactionManager(ktm);
+        factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.RECORD);
+        return factory;
+    }
+
+    //3) Read-Committed: B 토픽에서 커밋 완료된 메시지만 소비
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, Object> readCommittedFactory() {
+        Map<String, Object> props = new HashMap<>(kafkaProperties.buildConsumerProperties());
+        props.put(ConsumerConfig.ISOLATION_LEVEL_CONFIG, "read_committed");
+
+        DefaultKafkaConsumerFactory<String, Object> consumerFactory =
+                new DefaultKafkaConsumerFactory<>(props);
+
+        ConcurrentKafkaListenerContainerFactory<String, Object> factory =
+                new ConcurrentKafkaListenerContainerFactory<>();
+
+        factory.setConsumerFactory(consumerFactory);
+        factory.setCommonErrorHandler(errorHandler);
+        factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL_IMMEDIATE);
+        return factory;
+    }
+
 }
