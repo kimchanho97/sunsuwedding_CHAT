@@ -1,16 +1,18 @@
 package com.sunsuwedding.chat.event;
 
-import com.sunsuwedding.chat.model.ChatMessageDocument;
 import com.sunsuwedding.chat.dto.message.ChatMessageRequest;
 import com.sunsuwedding.chat.dto.message.S3UploadResultDto;
+import com.sunsuwedding.chat.model.ChatMessageDocument;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
 @Builder
 @Getter
+@NoArgsConstructor
 @AllArgsConstructor
 public class ChatMessageRequestEvent {
     private String chatRoomCode;
