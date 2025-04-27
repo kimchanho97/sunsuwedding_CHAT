@@ -1,7 +1,5 @@
 package com.sunsuwedding.chat.kafka.producer;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sunsuwedding.chat.event.ChatRoomResortBatchEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,15 +11,13 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class ChatRoomResortBatchEventProducer {
 
-    private final KafkaTemplate<String, String> kafkaTemplate;
-    private final ObjectMapper objectMapper;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
 
     public void send(ChatRoomResortBatchEvent event) {
-        try {
-            String payload = objectMapper.writeValueAsString(event);
-            kafkaTemplate.send("chat-room-resort", event.chatRoomCode(), payload);
-        } catch (JsonProcessingException e) {
-            log.error("❌ ChatRoomResortBatchEvent 직렬화 실패", e);
-        }
+        kafkaTemplate.send(
+                "chat-room-resort",
+                event.chatRoomCode(),
+                event
+        );
     }
 }
