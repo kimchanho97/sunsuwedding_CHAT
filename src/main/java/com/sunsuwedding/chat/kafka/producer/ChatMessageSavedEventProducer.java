@@ -1,26 +1,28 @@
 package com.sunsuwedding.chat.kafka.producer;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sunsuwedding.chat.event.ChatMessageSavedEvent;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.kafka.core.KafkaOperations;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-@RequiredArgsConstructor
 public class ChatMessageSavedEventProducer {
 
-    private final ObjectMapper objectMapper;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
 
-    public void sendTransactional(KafkaOperations<String, String> kafkaOps, ChatMessageSavedEvent event) {
-        try {
-            String payload = objectMapper.writeValueAsString(event);
-            kafkaOps.send("chat-message-saved", event.getChatRoomCode(), payload);
-        } catch (JsonProcessingException e) {
-            log.error("❌ ChatMessageSavedEvent 직렬화 실패", e);
-        }
+    public ChatMessageSavedEventProducer(
+            @Qualifier("transactionalKafkaTemplate") KafkaTemplate<String, Object> kafkaTemplate
+    ) {
+        this.kafkaTemplate = kafkaTemplate;
+    }
+
+    public void sendTransactional(ChatMessageSavedEvent event) {
+        kafkaTemplate.send(
+                "chat-message-saved",
+                event.getChatRoomCode(),
+                event
+        );
     }
 }
