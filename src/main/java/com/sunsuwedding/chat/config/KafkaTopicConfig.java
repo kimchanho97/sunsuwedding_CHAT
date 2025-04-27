@@ -27,8 +27,18 @@ public class KafkaTopicConfig {
     }
 
     @Bean
+    public NewTopic chatMessageDltTopic() {
+        return createTopic("chat-message.DLT");
+    }
+
+    @Bean
     public NewTopic presenceStatusTopic() {
         return createTopic("presence-status");
+    }
+
+    @Bean
+    public NewTopic presenceStatusDltTopic() {
+        return createTopic("presence-status.DLT");
     }
 
     @Bean
@@ -37,8 +47,18 @@ public class KafkaTopicConfig {
     }
 
     @Bean
+    public NewTopic chatMessageSavedDltTopic() {
+        return createTopic("chat-message-saved.DLT");
+    }
+
+    @Bean
     public NewTopic chatMessageUnicastTopic() {
         return createTopic("chat-message-unicast");
+    }
+
+    @Bean
+    NewTopic chatMessageUnicastDltTopic() {
+        return createTopic("chat-message-unicast.DLT");
     }
 
     @Bean
@@ -47,8 +67,18 @@ public class KafkaTopicConfig {
     }
 
     @Bean
+    public NewTopic chatRoomResortDltTopic() {
+        return createTopic("chat-room-resort.DLT");
+    }
+
+    @Bean
     public NewTopic chatMessageReadSyncTopic() {
         return createTopic("chat-message-read-sync");
+    }
+
+    @Bean
+    public NewTopic chatMessageReadSyncDltTopic() {
+        return createTopic("chat-message-read-sync.DLT");
     }
 
 }
