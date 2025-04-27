@@ -1,6 +1,5 @@
 package com.sunsuwedding.chat.kafka.consumer;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sunsuwedding.chat.event.ChatMessageSavedEvent;
 import com.sunsuwedding.chat.redis.RedisChatRoomStore;
 import lombok.RequiredArgsConstructor;
@@ -14,26 +13,25 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class ChatRoomMetaUpdaterConsumer {
 
-    private final ObjectMapper objectMapper;
     private final RedisChatRoomStore redisChatRoomStore;
 
-    @KafkaListener(topics = "chat-message-saved", groupId = "chat-room-meta-group")
-    public void consume(String payload, Acknowledgment ack) {
-        try {
-            ChatMessageSavedEvent event = objectMapper.readValue(payload, ChatMessageSavedEvent.class);
-            // 1. 메타 정보 업데이트
-            redisChatRoomStore.updateChatRoomMeta(
-                    event.getChatRoomCode(),
-                    event.getContent(),
-                    event.getCreatedAt(),
-                    event.getSequenceId()
-            );
+    @KafkaListener(
+            topics = "chat-message-saved",
+            groupId = "chat-room-meta-updater-group"
+    )
+    public void consume(ChatMessageSavedEvent event, Acknowledgment ack) {
+        // 1. 메타 정보 업데이트
+        redisChatRoomStore.updateChatRoomMeta(
+                event.getChatRoomCode(),
+                event.getContent(),
+                event.getCreatedAt(),
+                event.getSequenceId()
+        );
 
-            // 2. dirty 저장소에 키 추가
-            redisChatRoomStore.markChatRoomMetaAsDirty(event.getChatRoomCode());
-            ack.acknowledge();
-        } catch (Exception e) {
-            log.error("❌ chat-room-meta 업데이트 실패", e);
-        }
+        // 2. dirty 저장소에 키 추가
+        redisChatRoomStore.markChatRoomMetaAsDirty(event.getChatRoomCode());
+
+        ack.acknowledge();
     }
+
 }
