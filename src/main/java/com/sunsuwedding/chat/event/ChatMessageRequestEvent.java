@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class ChatMessageRequestEvent {
     private String chatRoomCode;
+    private String messageId;
     private Long senderId;
     private String senderName;
     private String content;
@@ -29,6 +30,7 @@ public class ChatMessageRequestEvent {
     public static ChatMessageRequestEvent from(ChatMessageRequest request, String chatRoomCode) {
         return ChatMessageRequestEvent.builder()
                 .chatRoomCode(chatRoomCode)
+                .messageId(request.getMessageId())
                 .senderId(request.getSenderId())
                 .senderName(request.getSenderName())
                 .content(request.getContent())
@@ -40,6 +42,7 @@ public class ChatMessageRequestEvent {
     public static ChatMessageRequestEvent from(ChatMessageRequest request, String chatRoomCode, S3UploadResultDto uploadResult) {
         return ChatMessageRequestEvent.builder()
                 .chatRoomCode(chatRoomCode)
+                .messageId(request.getMessageId())
                 .senderId(request.getSenderId())
                 .senderName(request.getSenderName())
                 .content(request.getContent())
@@ -52,6 +55,7 @@ public class ChatMessageRequestEvent {
 
     public ChatMessageDocument toDocument(Long seqId) {
         return ChatMessageDocument.builder()
+                .id(this.messageId)
                 .chatRoomCode(this.chatRoomCode)
                 .senderId(this.senderId)
                 .senderName(this.senderName)

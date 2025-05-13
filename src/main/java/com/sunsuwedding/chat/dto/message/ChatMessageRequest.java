@@ -15,6 +15,9 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class ChatMessageRequest {
 
+    @NotBlank(message = "메시지 ID는 필수입니다.")
+    private String messageId;
+
     @NotNull(message = "보내는 사람 ID는 필수입니다.")
     private Long senderId;
 

@@ -7,6 +7,7 @@ import com.sunsuwedding.chat.model.ChatMessageDocument;
 import com.sunsuwedding.chat.redis.RedisChatRoomStore;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -33,19 +34,18 @@ public class ChatMessagePersistenceConsumer {
         Long messageSeqId = redisChatRoomStore.nextMessageSeq(event.getChatRoomCode());
 
         // 2. MongoDB 저장
-        ChatMessageDocument savedDocument = upsertAndGet(event.toDocument(messageSeqId));
+        ChatMessageDocument savedDocument = upsertWithFindAndModify(event.toDocument(messageSeqId));
 
         // 3. 후속 이벤트 발행
         ChatMessageSavedEvent savedEvent = ChatMessageSavedEvent.from(savedDocument);
         chatMessageSavedEventProducer.sendTransactional(savedEvent);
     }
 
-    private ChatMessageDocument upsertAndGet(ChatMessageDocument doc) {
-        Query query = new Query();
-        query.addCriteria(Criteria.where("chatRoomCode").is(doc.getChatRoomCode())
-                .and("messageSeqId").is(doc.getMessageSeqId()));
+    private ChatMessageDocument upsertWithFindAndModify(ChatMessageDocument doc) {
+        Query query = new Query(Criteria.where("_id").is(doc.getId()));
 
         Update update = new Update()
+                .setOnInsert("_id", doc.getId())
                 .setOnInsert("chatRoomCode", doc.getChatRoomCode())
                 .setOnInsert("senderId", doc.getSenderId())
                 .setOnInsert("senderName", doc.getSenderName())
@@ -56,8 +56,11 @@ public class ChatMessagePersistenceConsumer {
                 .setOnInsert("fileName", doc.getFileName())
                 .setOnInsert("fileUrl", doc.getFileUrl());
 
-        mongoTemplate.upsert(query, update, ChatMessageDocument.class);
-        return mongoTemplate.findOne(query, ChatMessageDocument.class);
+        // FindAndModifyOptions를 사용하여 단일 연산으로 upsert 및 결과 조회
+        return mongoTemplate.findAndModify(
+                query,
+                update,
+                FindAndModifyOptions.options().upsert(true).returnNew(true),
+                ChatMessageDocument.class);
     }
-
 }
