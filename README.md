@@ -34,12 +34,12 @@
 
 ### 🔗 링크 모음
 
-- **서비스 배포 주소**: [https://sunsu-wedding.shop](https://sunsu-wedding.shop/)
+- **서비스 배포 주소**: `https://sunsu-wedding.shop` (서비스 중단)
 - **프론트엔드 레포지토리**: [순수웨딩 프론트엔드 레포지토리 바로가기](https://github.com/kimchanho97/sunsuwedding_FE)
 - **백엔드 API 서버 레포지토리**: [순수웨딩 메인 API 서버 레포지토리 바로가기](https://github.com/kimchanho97/sunsuwedding_BE)
 - **프로젝트 문서(Notion)**: [순수웨딩 프로젝트 문서 바로가기](https://kimchanho.notion.site/2-0-1a0a1b1b0041809f8f31fa9314b10a34)
 
-> **현재 서비스는 배포되어 접속 가능한 상태이며,**  
+> **현재 서비스는 비용 절약을 위해 중단된 상태입니다.**  
 > **프로젝트의 모든 상세 내용은 아래 문서에서 확인할 수 있습니다.**
 
 <br>
