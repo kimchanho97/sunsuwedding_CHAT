@@ -63,7 +63,7 @@
 
 ### 📌 유니캐스트 기반 메시지 전송 아키텍처
 
-<img width="700" alt="Image" src="https://github.com/user-attachments/assets/f86a693b-1c3d-40e1-838c-a7a36d75e678" />
+<img width="700" alt="Image" src="https://github.com/user-attachments/assets/7b7bef96-fee3-4c35-9f7e-e23426e922e5" />
 
 채팅 시스템은 확장성과 성능 최적화를 위해 유니캐스트 방식의 메시지 전송 구조를 채택했습니다.   
 이는 기존 그물망(메시 토폴로지) 방식에서 발생하는 서버 간 과도한 연결 복잡성과 스케일 아웃 시 높은 구성 비용 문제를 해결합니다.
