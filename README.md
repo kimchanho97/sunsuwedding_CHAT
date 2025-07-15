@@ -59,9 +59,9 @@
 <br>
 <br>
 
-## ✉️ 메시지 처리 아키텍처
+## ✉️ 이벤트 기반 채팅 시스템 아키텍처
 
-### 📌 유니캐스트 기반 메시지 전송 아키텍처
+### 📌 유니캐스트 메시지 라우팅 설계
 
 <img width="700" alt="Image" src="https://github.com/user-attachments/assets/7b7bef96-fee3-4c35-9f7e-e23426e922e5" />
 
@@ -94,7 +94,7 @@
 
 <br>
 
-### 📌 메시지 처리 파이프라인
+### 📌 비동기 이벤트 처리 파이프라인
 
 <img width="700" alt="Image" src="https://github.com/user-attachments/assets/f0f31eb6-677c-4c47-8605-91b43ca1111d" />
 
@@ -111,7 +111,7 @@
 
 <br>
 
-### 📌 메시지 전달 신뢰성 보장
+### 📌 메시지 전달 신뢰도 보장 메커니즘
 
 <img width="700" alt="Image" src="https://github.com/user-attachments/assets/39cfc226-3e1e-4e4c-bfe6-e4b5ea16d892" />
 
