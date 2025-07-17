@@ -22,12 +22,13 @@ public class ChatMessageRequestEvent {
     private String content;
     private String messageType;
     private LocalDateTime createdAt;
+    private Long messageSeqId;
 
     // 이미지 메시지인 경우
     private String fileName;
     private String fileUrl;
 
-    public static ChatMessageRequestEvent from(ChatMessageRequest request, String chatRoomCode) {
+    public static ChatMessageRequestEvent from(ChatMessageRequest request, String chatRoomCode, Long messageSeqId) {
         return ChatMessageRequestEvent.builder()
                 .chatRoomCode(chatRoomCode)
                 .messageId(request.getMessageId())
@@ -36,10 +37,11 @@ public class ChatMessageRequestEvent {
                 .content(request.getContent())
                 .messageType(request.getMessageType())
                 .createdAt(request.getCreatedAt())
+                .messageSeqId(messageSeqId)
                 .build();
     }
 
-    public static ChatMessageRequestEvent from(ChatMessageRequest request, String chatRoomCode, S3UploadResultDto uploadResult) {
+    public static ChatMessageRequestEvent from(ChatMessageRequest request, String chatRoomCode, S3UploadResultDto uploadResult, Long messageSeqId) {
         return ChatMessageRequestEvent.builder()
                 .chatRoomCode(chatRoomCode)
                 .messageId(request.getMessageId())
@@ -48,12 +50,13 @@ public class ChatMessageRequestEvent {
                 .content(request.getContent())
                 .messageType(request.getMessageType())
                 .createdAt(request.getCreatedAt())
+                .messageSeqId(messageSeqId)
                 .fileName(uploadResult.getFileName())
                 .fileUrl(uploadResult.getFileUrl())
                 .build();
     }
 
-    public ChatMessageDocument toDocument(Long seqId) {
+    public ChatMessageDocument toDocument() {
         return ChatMessageDocument.builder()
                 .id(this.messageId)
                 .chatRoomCode(this.chatRoomCode)
@@ -62,7 +65,7 @@ public class ChatMessageRequestEvent {
                 .content(this.content)
                 .messageType(this.messageType)
                 .createdAt(LocalDateTime.now())
-                .messageSeqId(seqId)
+                .messageSeqId(this.messageSeqId)
                 .fileName(this.fileName)
                 .fileUrl(this.fileUrl)
                 .build();

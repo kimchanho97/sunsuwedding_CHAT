@@ -8,6 +8,7 @@ import com.sunsuwedding.chat.dto.message.S3UploadResultDto;
 import com.sunsuwedding.chat.event.ChatMessageRequestEvent;
 import com.sunsuwedding.chat.kafka.producer.ChatMessageProducer;
 import com.sunsuwedding.chat.model.ChatMessageDocument;
+import com.sunsuwedding.chat.redis.RedisChatRoomStore;
 import com.sunsuwedding.chat.repository.ChatMessageMongoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -27,6 +28,7 @@ public class ChatMessageService {
     private final ChatImageUploadClient chatImageUploadClient;
     private final ChatMessageProducer chatMessageProducer;
     private final ChatMessageReadQueryService chatMessageReadQueryService;
+    private final RedisChatRoomStore redisChatRoomStore;
 
     public PaginationResponse<ChatMessageResponse> getMessages(String chatRoomCode, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
@@ -46,6 +48,7 @@ public class ChatMessageService {
         S3UploadResultDto uploadResult = chatImageUploadClient.uploadImage(imageFile);
 
         // 2. 업로드 결과를 포함한 메시지 이벤트 생성
-        chatMessageProducer.send(ChatMessageRequestEvent.from(message, chatRoomCode, uploadResult));
+        Long messageSeqId = redisChatRoomStore.nextMessageSeq(chatRoomCode);
+        chatMessageProducer.send(ChatMessageRequestEvent.from(message, chatRoomCode, uploadResult, messageSeqId));
     }
 }

@@ -4,7 +4,6 @@ import com.sunsuwedding.chat.event.ChatMessageRequestEvent;
 import com.sunsuwedding.chat.event.ChatMessageSavedEvent;
 import com.sunsuwedding.chat.kafka.producer.ChatMessageSavedEventProducer;
 import com.sunsuwedding.chat.model.ChatMessageDocument;
-import com.sunsuwedding.chat.redis.RedisChatRoomStore;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
@@ -21,7 +20,6 @@ import org.springframework.stereotype.Component;
 public class ChatMessagePersistenceConsumer {
 
     private final MongoTemplate mongoTemplate;
-    private final RedisChatRoomStore redisChatRoomStore;
     private final ChatMessageSavedEventProducer chatMessageSavedEventProducer;
 
     @KafkaListener(
@@ -30,13 +28,10 @@ public class ChatMessagePersistenceConsumer {
             containerFactory = "transactionalFactory"
     )
     public void consume(ChatMessageRequestEvent event) {
-        // 1. Redis에서 시퀀스 증가
-        Long messageSeqId = redisChatRoomStore.nextMessageSeq(event.getChatRoomCode());
+        // MongoDB 저장
+        ChatMessageDocument savedDocument = upsertWithFindAndModify(event.toDocument());
 
-        // 2. MongoDB 저장
-        ChatMessageDocument savedDocument = upsertWithFindAndModify(event.toDocument(messageSeqId));
-
-        // 3. 후속 이벤트 발행
+        // 후속 이벤트 발행
         ChatMessageSavedEvent savedEvent = ChatMessageSavedEvent.from(savedDocument);
         chatMessageSavedEventProducer.sendTransactional(savedEvent);
     }
